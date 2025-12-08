@@ -9,7 +9,7 @@ const ProductCard = ({ product, onView, onEdit, onDelete, onSponsor }) => {
     ? product.images[0] 
     : '/placeholder-product.png';
 
-  const isSponsored = product.sponsored || false;
+  const isSponsored = product?.sponsorship?.status === "active" || false;
   const isLowStock = product.amount_in_stock < 10;
 
   return (

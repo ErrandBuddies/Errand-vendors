@@ -107,7 +107,7 @@ const Dashboard = () => {
                     </p>
                     <p
                       className={`text-xs ${
-                        sale.status === "confirmed"
+                        sale.status === "completed"
                           ? "text-green-600"
                           : "text-yellow-600"
                       }`}

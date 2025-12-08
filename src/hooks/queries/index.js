@@ -4,4 +4,5 @@ export * from './useProfile';
 export * from './useDashboard';
 export * from './useSponsorship';
 export * from './useServices';
+export * from './useOrders';
 export { QUERY_KEYS } from './queryKeys';

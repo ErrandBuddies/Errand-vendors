@@ -95,6 +95,7 @@ const Services = () => {
   }, [category]);
 
   useEffect(() => {
+    console.log({useVendorAddress, user});
     // Prefill location from vendor address
     if (useVendorAddress && user) {
       setValue("state", user.state || "");

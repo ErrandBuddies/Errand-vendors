@@ -27,8 +27,8 @@ const ServiceDetails = () => {
 
   const [service, setService] = useState(null);
   const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [loadingReviews, setLoadingReviews] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [deletingImage, setDeletingImage] = useState(null);

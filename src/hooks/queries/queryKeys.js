@@ -5,19 +5,53 @@
  * Using factory functions to ensure type safety and consistency
  */
 
-export const QUERY_KEYS = {
+export const queryKeys = {
   // Products
-  PRODUCTS: ["products"],
-  PRODUCT: (id) => ["products", id],
+  products: {
+    all: ['products'],
+    detail: (id) => [...queryKeys.products.all, id],
+  },
 
   // Profile
-  VENDOR_PROFILE: ["vendor-profile"],
+  profile: {
+    all: ['vendor-profile'],
+  },
 
   // Dashboard
-  DASHBOARD: ["dashboard"],
-  DASHBOARD_STATS: (params) => ["dashboard", "stats", params],
+  dashboard: {
+    all: ['dashboard'],
+    stats: (params) => [...queryKeys.dashboard.all, 'stats', params],
+  },
 
   // Services
-  SERVICES: ["services"],
-  SERVICE: (id) => ["services", id],
+  services: {
+    all: ['services'],
+    detail: (id) => [...queryKeys.services.all, id],
+  },
+
+  // Orders
+  orders: {
+    all: ['orders'],
+    list: () => [...queryKeys.orders.all, 'list'],
+  },
+
+  // Chat
+  chat: {
+    all: ['chat'],
+    conversations: () => [...queryKeys.chat.all, 'conversations'],
+    messages: (recipientId) => [...queryKeys.chat.all, 'messages', recipientId],
+  },
+};
+
+// Legacy exports for backward compatibility
+export const QUERY_KEYS = {
+  PRODUCTS: queryKeys.products.all,
+  PRODUCT: queryKeys.products.detail,
+  VENDOR_PROFILE: queryKeys.profile.all,
+  DASHBOARD: queryKeys.dashboard.all,
+  DASHBOARD_STATS: queryKeys.dashboard.stats,
+  SERVICES: queryKeys.services.all,
+  SERVICE: queryKeys.services.detail,
+  ORDERS: queryKeys.orders.all,
+  ORDER: (id) => [...queryKeys.orders.all, id],
 };

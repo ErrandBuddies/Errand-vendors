@@ -1,28 +1,104 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageSquare } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import ConversationList from '@/components/chat/ConversationList';
+import ChatWindow from '@/components/chat/ChatWindow';
+import EmptyState from '@/components/chat/EmptyState';
+import { useSocket } from '@/hooks/useSocket';
 
 const Messages = () => {
-  return (
-    <div className="p-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5" />
-            Messages
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-12">
-            <MessageSquare className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Messages Page
-            </h3>
-            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-              This is the messages page scaffolding. Messaging features will be implemented here.
-            </p>
+  const [selectedConversation, setSelectedConversation] = useState(null);
+  const [isMobileView, setIsMobileView] = useState(false);
+  const { isConnected } = useSocket();
+
+  // Check if mobile view
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobileView(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const handleSelectConversation = (conversation) => {
+    setSelectedConversation(conversation);
+  };
+
+  const handleBackToList = () => {
+    setSelectedConversation(null);
+  };
+
+  // Mobile view: single panel with navigation
+  if (isMobileView) {
+    return (
+      <div className="h-[calc(100vh-64px)]">
+        {/* Connection status indicator */}
+        {!isConnected && (
+          <div className="bg-yellow-100 border-b border-yellow-200 px-4 py-2 text-xs text-yellow-800 text-center">
+            Connecting to chat server...
           </div>
-        </CardContent>
-      </Card>
+        )}
+
+        {selectedConversation ? (
+          <div className="flex flex-col h-full">
+            {/* Mobile header with back button */}
+            <div className="flex items-center gap-2 p-3 border-b bg-background">
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={handleBackToList}
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <h2 className="font-semibold">
+                {selectedConversation.counterpartDetails?.firstname}{' '}
+                {selectedConversation.counterpartDetails?.lastname}
+              </h2>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <ChatWindow conversation={selectedConversation} />
+            </div>
+          </div>
+        ) : (
+          <ConversationList
+            selectedConversationId={selectedConversation?._id}
+            onSelectConversation={handleSelectConversation}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // Desktop view: split panel layout
+  return (
+    <div className="h-[calc(100vh-64px)] p-6">
+      {/* Connection status indicator */}
+      {!isConnected && (
+        <div className="bg-yellow-100 border border-yellow-200 rounded-lg mb-4 px-4 py-2 text-sm text-yellow-800 text-center">
+          Connecting to chat server...
+        </div>
+      )}
+
+      <div className="flex h-full gap-4">
+        {/* Left panel: Conversation list */}
+        <div className="w-1/3 min-w-[300px] max-w-md h-full overflow-hidden">
+          <ConversationList
+            selectedConversationId={selectedConversation?._id}
+            onSelectConversation={handleSelectConversation}
+          />
+        </div>
+
+        {/* Right panel: Chat window or empty state */}
+        <div className="flex-1 h-full overflow-hidden">
+          {selectedConversation ? (
+            <ChatWindow conversation={selectedConversation} />
+          ) : (
+            <EmptyState />
+          )}
+        </div>
+      </div>
     </div>
   );
 };

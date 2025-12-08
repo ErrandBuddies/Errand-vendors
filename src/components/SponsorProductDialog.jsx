@@ -33,7 +33,7 @@ import {
   useInitiateSponsorshipMutation,
   useCompleteSponsorshipMutation,
 } from "@/hooks/queries";
-import { initializePaystackPayment } from "@/lib/paystack";
+import { paystackPayment } from "@/lib/paystack";
 import { useAuth } from "@/hooks/useAuth";
 import ImageUpload from "@/components/ImageUpload";
 
@@ -143,13 +143,10 @@ export function SponsorProductDialog({ product, open, onOpenChange }) {
     // Online Payment (Paystack)
     else if (payment.means === "online" || payment.means === "hybrid") {
       try {
-        await initializePaystackPayment({
-          email: user?.email,
-          amount: payment.online.amountPaid * 100, // Convert to kobo
-          reference: payment.online.reference,
+        await paystackPayment({
           accessCode: payment.online.accessCode,
-          onSuccess: (response) => {
-            completeTransaction(response.reference);
+          onSuccess: () => {
+            completeTransaction(payment.reference);
           },
           onClose: () => {
             // Handle modal close if needed

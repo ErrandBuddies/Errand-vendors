@@ -9,6 +9,8 @@ import {
   Upload,
   Trash2,
   Edit,
+  Star,
+  User,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,10 +35,43 @@ const ProductDetails = () => {
   const [deletingImage, setDeletingImage] = useState(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showSponsorDialog, setShowSponsorDialog] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [loadingReviews, setLoadingReviews] = useState(true);
 
   useEffect(() => {
     fetchProductDetails();
+    fetchProductReviews();
   }, [id]);
+
+  const renderStars = (rating) => {
+    return (
+      <div className="flex gap-0.5">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            className={`w-4 h-4 ${
+              star <= rating
+                ? "fill-yellow-400 text-yellow-400"
+                : "text-gray-300"
+            }`}
+          />
+        ))}
+      </div>
+    );
+  };
+
+    const fetchProductReviews = async () => {
+    setLoadingReviews(true);
+    try {
+      const response = await productService.getProductReviews(id);
+      setReviews(response.data || []);
+    } catch (error) {
+      console.error("Failed to fetch reviews:", error);
+      // Don't show error toast for reviews as it's not critical
+    } finally {
+      setLoadingReviews(false);
+    }
+  };
 
   const fetchProductDetails = async () => {
     setLoading(true);
@@ -196,10 +231,7 @@ const ProductDetails = () => {
               {/* Main Image */}
               <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
                 <img
-                  src={
-                    product.images?.[selectedImage] ||
-                    imagePlaceholder
-                  }
+                  src={product.images?.[selectedImage] || imagePlaceholder}
                   alt={product.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
@@ -529,6 +561,89 @@ const ProductDetails = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Reviews Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Star className="w-5 h-5" />
+            Customer Reviews{" "}
+            {product.ratings?.rate && product.ratings?.number ? (
+              <span className="text-base font-normal">
+                ({product.ratings.rate} / 5 from {product.ratings.number}{" "}
+                ratings)
+              </span>
+            ) : (
+              `(${reviews.length})`
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loadingReviews ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Loading reviews...
+              </p>
+            </div>
+          ) : reviews.length === 0 ? (
+            <div className="text-center py-8">
+              <Star className="w-12 h-12 mx-auto text-gray-300 mb-2" />
+              <p className="text-muted-foreground">No reviews yet</p>
+              <p className="text-sm text-muted-foreground">
+                Reviews will appear here once customers rate your Product
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {reviews.map((review) => (
+                <div
+                  key={review._id}
+                  className="border-b last:border-b-0 pb-4 last:pb-0"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <User className="w-5 h-5 text-primary" />
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <div>
+                          <h5 className="font-semibold">
+                            {review.userId?.firstname} {review.userId?.lastname}
+                          </h5>
+                          <p className="text-xs text-muted-foreground">
+                            {review.createdAt
+                              ? format(new Date(review.createdAt), "PPP")
+                              : ""}
+                          </p>
+                        </div>
+                        {renderStars(review.rating)}
+                      </div>
+                      <p className="text-muted-foreground text-sm">
+                        {review.review}
+                      </p>
+                      {review.images && review.images.length > 0 && (
+                        <div className="flex gap-2 mt-2">
+                          {review.images.map((img, idx) => (
+                            <img
+                              key={idx}
+                              src={img}
+                              alt={`Review ${idx + 1}`}
+                              className="w-20 h-20 object-cover rounded-lg"
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Edit Product Dialog */}
       <EditProductDialog

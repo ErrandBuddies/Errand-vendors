@@ -161,6 +161,12 @@ export const productService = {
     return response.data;
   },
 
+
+  getProductReviews: async (productId) => {
+    const response = await axiosInstance.get(`/products/reviews/${productId}`);
+    return response.data;
+  },
+
   deleteImage: async (productId, imageId) => {
     const response = await axiosInstance.delete(`${API_ENDPOINTS.DELETE_PRODUCT_IMAGE}/${productId}/${imageId}`);
     return response.data;
@@ -274,3 +280,36 @@ export const serviceService = {
     return response.data;
   },
 };
+
+// ==================================================
+// *** ORDER SERVICES ***
+// ==================================================
+export const orderService = {
+  getOrders: async () => {
+    const response = await axiosInstance.get(API_ENDPOINTS.ORDERS);
+    return response.data;
+  },
+
+  confirmOrder: async (payload) => {
+    const response = await axiosInstance.post(API_ENDPOINTS.CONFIRM_ORDER, payload);
+    return response.data;
+  },
+};
+
+// ==================================================
+// *** CHAT SERVICES ***
+// ==================================================
+export const chatService = {
+  getConversations: async () => {
+    const response = await axiosInstance.get(API_ENDPOINTS.GET_CONVERSATIONS);
+    return response.data;
+  },
+
+  getMessages: async (recipientId, params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    const url = `${API_ENDPOINTS.GET_MESSAGES}/${recipientId}${queryString ? `?${queryString}` : ''}`;
+    const response = await axiosInstance.get(url);
+    return response.data;
+  },
+};
+

@@ -100,7 +100,7 @@ const Profile = () => {
         address: profileData.address || "",
         city: profileData.city || "",
         state: profileData.state || "",
-        country: profileData.country || "",
+        country: profileData.country || "Nigeria",
       });
     }
   }, [profileData, isProfileLoading]);
@@ -461,8 +461,8 @@ const Profile = () => {
                   <Label htmlFor="country">Country</Label>
                   <Input
                     id="country"
-                    {...registerAddress('country')}
-                    disabled
+                    {...registerAddress('country', { value: "Nigeria" })}
+                    // disabled
                     value="Nigeria"
                     readOnly
                     placeholder="Nigeria"
