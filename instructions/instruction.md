@@ -21,7 +21,7 @@ features: {
     form: {
         endpoint: localhost:/vendor/signup,
         method: post,
-        payload: {
+    payload: {
             "firstname": "Abdulazeez",
             "lastname": "Olamilekan",
             "email": " AdebayoaZeeZ37@gmail.com ",

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import socketService from '@/lib/socket';
+import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import socketService from "@/lib/socket";
 
 /**
  * Custom hook for managing Socket.IO connection
@@ -33,15 +33,25 @@ export const useSocket = () => {
         setIsConnected(false);
       };
 
-      socketInstance.on('connect', handleConnect);
-      socketInstance.on('disconnect', handleDisconnect);
+      socketInstance.on("connect", handleConnect);
+      socketInstance.on("disconnect", handleDisconnect);
+
+      // Log all sent events
+      socketInstance.onAnyOutgoing((event, ...args) => {
+        console.log(`🔵 Outgoing Event: ${event}`, args);
+      });
+
+      // Log all received events
+      socketInstance.onAny((event, ...args) => {
+        console.log(`🟢 Incoming Event: ${event}`, args);
+      });
 
       // Set initial connection status
       setIsConnected(socketInstance.connected);
 
       return () => {
-        socketInstance.off('connect', handleConnect);
-        socketInstance.off('disconnect', handleDisconnect);
+        socketInstance.off("connect", handleConnect);
+        socketInstance.off("disconnect", handleDisconnect);
       };
     }
   }, [isAuthenticated]);

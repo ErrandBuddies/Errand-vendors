@@ -1,8 +1,7 @@
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export const VENDOR_URL = import.meta.env.VITE_VENDOR_URL;
 // Socket.IO URL (same as API base URL but without /api suffix)
-export const SOCKET_URL = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:4000';
-
+export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 export const ROUTES = {
   // Auth routes
   SIGNUP: "/signup",
@@ -69,6 +68,7 @@ export const API_ENDPOINTS = {
   // Chat
   GET_CONVERSATIONS: "/chat/vendor/conversation",
   GET_MESSAGES: "/chat/vendor/messages",
+  UPLOAD_ATTACHMENT: "/chat/upload-attachment",
 };
 
 export const STORAGE_KEYS = {

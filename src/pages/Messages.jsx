@@ -44,21 +44,8 @@ const Messages = () => {
         {selectedConversation ? (
           <div className="flex flex-col h-full">
             {/* Mobile header with back button */}
-            <div className="flex items-center gap-2 p-3 border-b bg-background">
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={handleBackToList}
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <h2 className="font-semibold">
-                {selectedConversation.counterpartDetails?.firstname}{' '}
-                {selectedConversation.counterpartDetails?.lastname}
-              </h2>
-            </div>
             <div className="flex-1 overflow-hidden">
-              <ChatWindow conversation={selectedConversation} />
+              <ChatWindow conversation={selectedConversation} handleBackToList={handleBackToList} />
             </div>
           </div>
         ) : (
@@ -93,7 +80,7 @@ const Messages = () => {
         {/* Right panel: Chat window or empty state */}
         <div className="flex-1 h-full overflow-hidden">
           {selectedConversation ? (
-            <ChatWindow conversation={selectedConversation} />
+            <ChatWindow conversation={selectedConversation} handleBackToList={handleBackToList} />
           ) : (
             <EmptyState />
           )}

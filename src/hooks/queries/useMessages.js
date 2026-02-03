@@ -29,6 +29,7 @@ export const useMessages = (recipientId) => {
         pagination: response.pagination || {},
         conversationId: response.conversationId,
         recipient: response.recipient?.[0] || null,
+        contract: response.contract || null
       };
     },
     getNextPageParam: (lastPage) => {
@@ -63,7 +64,7 @@ export const useMessages = (recipientId) => {
               if (newPages.length > 0) {
                 newPages[0] = {
                   ...newPages[0],
-                  messages: [message, ...newPages[0].messages],
+                  messages: [...newPages[0].messages, message, ],
                 };
               }
               return {

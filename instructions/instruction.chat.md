@@ -87,7 +87,7 @@ payloads and responses: {
         "attachment": {
             "file": "path/to/file.jpg", // base64 string
             "type": "image" // required
-            "name": "file.jpg", // required
+            "fileName": "file.jpg", // required
             "size": 1024, // required
         } // optional
     },

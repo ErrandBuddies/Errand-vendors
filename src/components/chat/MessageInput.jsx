@@ -1,8 +1,10 @@
 import { useState, useRef } from 'react';
 import { Send, Paperclip, X, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { chatService } from '../../services/api';
 
 /**
  * MessageInput Component
@@ -14,17 +16,22 @@ export const MessageInput = ({ onSend, isSending, disabled }) => {
   const [attachmentPreview, setAttachmentPreview] = useState(null);
   const fileInputRef = useRef(null);
   const textareaRef = useRef(null);
+  const { toast } = useToast();
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      alert('File size must be less than 10MB');
+    console.log(file);
+    // Validate file size (max 20MB)
+    if (file.size > 20 * 1024 * 1024) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'File size must be less than 20MB',
+      });
       return;
     }
-
+    
     setAttachment(file);
 
     // Create preview for images

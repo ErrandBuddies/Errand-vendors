@@ -311,5 +311,16 @@ export const chatService = {
     const response = await axiosInstance.get(url);
     return response.data;
   },
+
+  uploadAttachment: async (image) => {
+    const formData = new FormData();
+    formData.append('attachment', image);
+    const response = await axiosInstance.post(API_ENDPOINTS.UPLOAD_ATTACHMENT, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
 };
 

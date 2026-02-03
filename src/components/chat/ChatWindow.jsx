@@ -1,21 +1,22 @@
-import { useEffect, useRef, useState } from 'react';
-import { ArrowDown, Loader2 } from 'lucide-react';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-import MessageBubble from './MessageBubble';
-import MessageInput from './MessageInput';
-import useMessages from '@/hooks/queries/useMessages';
-import useSendMessage from '@/hooks/queries/useSendMessage';
-import { useSocket } from '@/hooks/useSocket';
-import { useAuth } from '@/hooks/useAuth';
+import { useEffect, useRef, useState } from "react";
+import { ArrowDown, ArrowLeft, Loader2 } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import MessageBubble from "./MessageBubble";
+import MessageInput from "./MessageInput";
+import ContractService from "@/components/contract/ContractService";
+
+import useMessages from "@/hooks/queries/useMessages";
+import useSendMessage from "@/hooks/queries/useSendMessage";
+import { useSocket } from "@/hooks/useSocket";
+import { useAuth } from "@/hooks/useAuth";
 
 /**
  * ChatWindow Component
  * Main chat interface with message list and input
  */
-export const ChatWindow = ({ conversation }) => {
+export const ChatWindow = ({ conversation, handleBackToList }) => {
   const { user } = useAuth();
   const { socket } = useSocket();
   const scrollRef = useRef(null);
@@ -24,27 +25,30 @@ export const ChatWindow = ({ conversation }) => {
   const [hasScrolledUp, setHasScrolledUp] = useState(false);
 
   const recipientId = conversation?.counterpartDetails?._id;
-  const { 
-    data, 
-    isLoading, 
-    error, 
-    fetchNextPage, 
-    hasNextPage, 
-    isFetchingNextPage 
+  const {
+    data,
+    isLoading,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
   } = useMessages(recipientId);
 
   const { sendMessage, isSending } = useSendMessage(recipientId);
 
   // Flatten all messages from pages
+  console.log("data from usemessage: ", data);
+
   const messages = data?.pages?.flatMap((page) => page.messages) || [];
-  const recipient = data?.pages?.[0]?.recipient;
+  const recipient = data?.recipient;
+  const contract = data?.pages?.[0]?.contract;
 
   // Auto-scroll to bottom on new message (if not scrolled up)
   useEffect(() => {
     if (!hasScrolledUp && messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages.length, hasScrolledUp]);
+  }, [hasScrolledUp, messages.length]);
 
   // Initial scroll to bottom
   useEffect(() => {
@@ -56,7 +60,7 @@ export const ChatWindow = ({ conversation }) => {
   // Mark messages as read when conversation is viewed
   useEffect(() => {
     if (socket && recipientId) {
-      socket.emit('messagesRead', { recipientID: recipientId });
+      socket.emit("messagesRead", { recipientID: recipientId });
     }
   }, [socket, recipientId]);
 
@@ -66,14 +70,14 @@ export const ChatWindow = ({ conversation }) => {
 
     const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
     const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
-    
+
     setShowScrollButton(!isNearBottom);
     setHasScrolledUp(!isNearBottom);
 
     // Load more messages when scrolled to top
     if (scrollTop === 0 && hasNextPage && !isFetchingNextPage) {
       const previousScrollHeight = scrollRef.current.scrollHeight;
-      
+
       fetchNextPage().then(() => {
         // Maintain scroll position after loading more messages
         if (scrollRef.current) {
@@ -85,17 +89,13 @@ export const ChatWindow = ({ conversation }) => {
   };
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     setHasScrolledUp(false);
   };
 
   const handleSend = async ({ message, attachment }) => {
     await sendMessage({ message, attachment });
     setHasScrolledUp(false); // Auto-scroll on send
-  };
-
-  const getInitials = (firstname, lastname) => {
-    return `${firstname?.[0] || ''}${lastname?.[0] || ''}`.toUpperCase();
   };
 
   if (error) {
@@ -110,27 +110,21 @@ export const ChatWindow = ({ conversation }) => {
 
   return (
     <Card className="flex flex-col h-full rounded-none">
-      {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b bg-background">
-        <Avatar className="w-10 h-10">
-          <AvatarFallback className="bg-primary text-primary-foreground">
-            {getInitials(
-              recipient?.firstname || conversation?.counterpartDetails?.firstname,
-              recipient?.lastname || conversation?.counterpartDetails?.lastname
-            )}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex-1">
-          <h3 className="font-semibold">
-            {recipient?.firstname || conversation?.counterpartDetails?.firstname}{' '}
-            {recipient?.lastname || conversation?.counterpartDetails?.lastname}
-          </h3>
-          <p className="text-xs text-muted-foreground">Customer</p>
+      {/* Contract Service */}
+      <div className="flex items-center justify-between gap-2 p-3 border-b bg-background">
+        <div className="left flex items-center">
+          <Button size="icon" variant="ghost" onClick={handleBackToList}>
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <h2 className="font-semibold">
+            {recipient?.firstname} {recipient?.lastname}
+          </h2>
         </div>
+        <ContractService conversation={conversation} contract={contract} />
       </div>
 
       {/* Messages */}
-      <div 
+      <div
         ref={scrollRef}
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto p-4 bg-muted/10 relative"
@@ -154,7 +148,9 @@ export const ChatWindow = ({ conversation }) => {
                 <MessageBubble
                   key={message._id || message.messageID}
                   message={message}
-                  isSent={message.sender === user?._id || message.sender === 'me'}
+                  isSent={
+                    message.sender === user?._id || message.sender === "me"
+                  }
                 />
               ))}
               <div ref={messagesEndRef} />
@@ -175,8 +171,8 @@ export const ChatWindow = ({ conversation }) => {
       </div>
 
       {/* Input */}
-      <MessageInput 
-        onSend={handleSend} 
+      <MessageInput
+        onSend={handleSend}
         isSending={isSending}
         disabled={!recipientId}
       />
