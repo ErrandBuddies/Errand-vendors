@@ -44,7 +44,13 @@ export const ChatWindow = ({ conversation }) => {
     if (!hasScrolledUp && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages.length, hasScrolledUp]);
+    
+    // Mark as read if we receive a new message while the chat is open
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && lastMessage.sender === recipientId && socket) {
+      socket.emit('messagesRead', { recipientID: recipientId });
+    }
+  }, [messages.length, hasScrolledUp, recipientId, socket]);
 
   // Initial scroll to bottom
   useEffect(() => {

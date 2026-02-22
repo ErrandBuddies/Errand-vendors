@@ -8,38 +8,44 @@
 export const queryKeys = {
   // Products
   products: {
-    all: ['products'],
+    all: ["products"],
     detail: (id) => [...queryKeys.products.all, id],
   },
 
   // Profile
   profile: {
-    all: ['vendor-profile'],
+    all: ["vendor-profile"],
   },
 
   // Dashboard
   dashboard: {
-    all: ['dashboard'],
-    stats: (params) => [...queryKeys.dashboard.all, 'stats', params],
+    all: ["dashboard"],
+    stats: (params) => [...queryKeys.dashboard.all, "stats", params],
   },
 
   // Services
   services: {
-    all: ['services'],
+    all: ["services"],
     detail: (id) => [...queryKeys.services.all, id],
   },
 
   // Orders
   orders: {
-    all: ['orders'],
-    list: () => [...queryKeys.orders.all, 'list'],
+    all: ["orders"],
+    list: () => [...queryKeys.orders.all, "list"],
   },
 
   // Chat
   chat: {
-    all: ['chat'],
-    conversations: () => [...queryKeys.chat.all, 'conversations'],
-    messages: (recipientId) => [...queryKeys.chat.all, 'messages', recipientId],
+    all: ["chat"],
+    conversations: () => [...queryKeys.chat.all, "conversations"],
+    messages: (recipientId) => [...queryKeys.chat.all, "messages", recipientId],
+  },
+
+  // Wallet
+  wallet: {
+    balance: ["wallet-balance"],
+    banks: ["banks"],
   },
 };
 
@@ -54,4 +60,6 @@ export const QUERY_KEYS = {
   SERVICE: queryKeys.services.detail,
   ORDERS: queryKeys.orders.all,
   ORDER: (id) => [...queryKeys.orders.all, id],
+  WALLET_BALANCE: queryKeys.wallet.balance,
+  BANKS: queryKeys.wallet.banks,
 };

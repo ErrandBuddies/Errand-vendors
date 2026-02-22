@@ -1,8 +1,8 @@
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
-import { chatService } from '@/services/api';
-import { queryKeys } from './queryKeys';
-import { useSocket } from '@/hooks/useSocket';
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { chatService } from "@/services/api";
+import { queryKeys } from "./queryKeys";
+import { useSocket } from "@/hooks/useSocket";
 
 /**
  * Custom hook for fetching messages with infinite scroll and real-time updates
@@ -18,7 +18,7 @@ export const useMessages = (recipientId) => {
       const params = {
         limit: 50,
       };
-      
+
       if (pageParam) {
         params.cursor = pageParam;
       }
@@ -32,7 +32,9 @@ export const useMessages = (recipientId) => {
       };
     },
     getNextPageParam: (lastPage) => {
-      return lastPage.pagination?.hasMore ? lastPage.pagination.nextCursor : undefined;
+      return lastPage.pagination?.hasMore
+        ? lastPage.pagination.nextCursor
+        : undefined;
     },
     enabled: !!recipientId,
     staleTime: 1000 * 30, // 30 seconds
@@ -50,35 +52,33 @@ export const useMessages = (recipientId) => {
           message.sender === recipientId || message.recipient === recipientId;
 
         if (isSenderOrRecipient) {
-          queryClient.setQueryData(queryKeys.chat.messages(recipientId), (oldData) => {
-            if (!oldData) return oldData;
+          queryClient.setQueryData(
+            queryKeys.chat.messages(recipientId),
+            (oldData) => {
+              if (!oldData) return oldData;
 
-            // Check if message already exists
-            const messageExists = oldData.pages.some((page) =>
-              page.messages.some((msg) => msg._id === message._id)
-            );
+              // Check if message already exists
+              const messageExists = oldData.pages.some((page) =>
+                page.messages.some((msg) => msg._id === message._id),
+              );
 
-            if (!messageExists) {
-              const newPages = [...oldData.pages];
-              if (newPages.length > 0) {
-                newPages[0] = {
-                  ...newPages[0],
-                  messages: [message, ...newPages[0].messages],
+              if (!messageExists) {
+                const newPages = [...oldData.pages];
+                if (newPages.length > 0) {
+                  newPages[0] = {
+                    ...newPages[0],
+                    messages: [message, ...newPages[0].messages],
+                  };
+                }
+                return {
+                  ...oldData,
+                  pages: newPages,
                 };
               }
-              return {
-                ...oldData,
-                pages: newPages,
-              };
-            }
 
-            return oldData;
-          });
-
-          // Auto-mark message as delivered if it's from the other person
-          if (message.sender === recipientId && socket) {
-            socket.emit('messageDelivered', { messageID: message._id });
-          }
+              return oldData;
+            },
+          );
         }
       }
     };
@@ -90,16 +90,46 @@ export const useMessages = (recipientId) => {
         const messageRecipient = message.recipient;
 
         if (messageRecipient === recipientId) {
-          queryClient.setQueryData(queryKeys.chat.messages(recipientId), (oldData) => {
+          queryClient.setQueryData(
+            queryKeys.chat.messages(recipientId),
+            (oldData) => {
+              if (!oldData) return oldData;
+
+              // Find and update the pending message
+              const newPages = oldData.pages.map((page) => ({
+                ...page,
+                messages: page.messages.map((msg) => {
+                  // Match by messageID if it's a pending message
+                  if (msg.messageID === data.messageID) {
+                    return { ...message, messageID: data.messageID };
+                  }
+                  return msg;
+                }),
+              }));
+
+              return {
+                ...oldData,
+                pages: newPages,
+              };
+            },
+          );
+        }
+      }
+    };
+
+    // Handle message delivered status
+    const handleMessageDelivered = (data) => {
+      if (data?.success && data?.messageID) {
+        queryClient.setQueryData(
+          queryKeys.chat.messages(recipientId),
+          (oldData) => {
             if (!oldData) return oldData;
 
-            // Find and update the pending message
             const newPages = oldData.pages.map((page) => ({
               ...page,
               messages: page.messages.map((msg) => {
-                // Match by messageID if it's a pending message
-                if (msg.messageID === data.messageID) {
-                  return { ...message, messageID: data.messageID };
+                if (msg._id === data.messageID) {
+                  return { ...msg, status: "delivered" };
                 }
                 return msg;
               }),
@@ -109,69 +139,51 @@ export const useMessages = (recipientId) => {
               ...oldData,
               pages: newPages,
             };
-          });
-        }
-      }
-    };
-
-    // Handle message delivered status
-    const handleMessageDelivered = (data) => {
-      if (data?.success && data?.messageID) {
-        queryClient.setQueryData(queryKeys.chat.messages(recipientId), (oldData) => {
-          if (!oldData) return oldData;
-
-          const newPages = oldData.pages.map((page) => ({
-            ...page,
-            messages: page.messages.map((msg) => {
-              if (msg._id === data.messageID) {
-                return { ...msg, status: 'delivered' };
-              }
-              return msg;
-            }),
-          }));
-
-          return {
-            ...oldData,
-            pages: newPages,
-          };
-        });
+          },
+        );
       }
     };
 
     // Handle messages read status
     const handleMessagesRead = (data) => {
       if (data?.success && data?.recipientID) {
-        queryClient.setQueryData(queryKeys.chat.messages(recipientId), (oldData) => {
-          if (!oldData) return oldData;
+        queryClient.setQueryData(
+          queryKeys.chat.messages(recipientId),
+          (oldData) => {
+            if (!oldData) return oldData;
 
-          const newPages = oldData.pages.map((page) => ({
-            ...page,
-            messages: page.messages.map((msg) => {
-              if (msg.recipient === data.recipientID && msg.status !== 'read') {
-                return { ...msg, status: 'read' };
-              }
-              return msg;
-            }),
-          }));
+            const newPages = oldData.pages.map((page) => ({
+              ...page,
+              messages: page.messages.map((msg) => {
+                if (
+                  msg.recipient === data.recipientID &&
+                  msg.status !== "read"
+                ) {
+                  return { ...msg, status: "read" };
+                }
+                return msg;
+              }),
+            }));
 
-          return {
-            ...oldData,
-            pages: newPages,
-          };
-        });
+            return {
+              ...oldData,
+              pages: newPages,
+            };
+          },
+        );
       }
     };
 
-    socket.on('message', handleNewMessage);
-    socket.on('messageSent', handleMessageSent);
-    socket.on('messageDelivered', handleMessageDelivered);
-    socket.on('messagesRead', handleMessagesRead);
+    socket.on("message", handleNewMessage);
+    socket.on("messageSent", handleMessageSent);
+    socket.on("messageDelivered", handleMessageDelivered);
+    socket.on("messagesRead", handleMessagesRead);
 
     return () => {
-      socket.off('message', handleNewMessage);
-      socket.off('messageSent', handleMessageSent);
-      socket.off('messageDelivered', handleMessageDelivered);
-      socket.off('messagesRead', handleMessagesRead);
+      socket.off("message", handleNewMessage);
+      socket.off("messageSent", handleMessageSent);
+      socket.off("messageDelivered", handleMessageDelivered);
+      socket.off("messagesRead", handleMessagesRead);
     };
   }, [socket, isConnected, recipientId, queryClient]);
 

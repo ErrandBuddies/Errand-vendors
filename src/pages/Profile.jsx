@@ -7,8 +7,9 @@ import {
   LogOut,
   Edit,
   Save,
+  Wallet,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,7 +33,9 @@ import {
   useUpdateProfileMutation,
   useUpdateAddressMutation,
   useVerifyProfileMutation,
+  useWalletBalanceQuery,
 } from "@/hooks/queries";
+import WithdrawalModal from "@/components/Wallet/WithdrawalModal";
 
 const Profile = () => {
   // React Query hooks
@@ -41,6 +44,11 @@ const Profile = () => {
     isLoading: isProfileLoading,
     refetch: refetchProfile,
   } = useVendorProfileQuery();
+  
+  const { data: walletData } = useWalletBalanceQuery();
+  const walletBalance = walletData?.balance || 0;
+  const withdrawableAmount = walletData?.withdrawable || 0;
+
   const navigate = useNavigate();
   const location = useLocation();
   const initialTab = location.state?.tab || "personal";
@@ -54,6 +62,7 @@ const Profile = () => {
   const [editingPersonal, setEditingPersonal] = useState(false);
   const [editingAddress, setEditingAddress] = useState(false);
   const [verificationImage, setVerificationImage] = useState(null);
+  const [isWithdrawalModalOpen, setIsWithdrawalModalOpen] = useState(false);
 
   const { user, logout, updateUser } = useAuth();
   const { toast } = useToast();
@@ -251,6 +260,17 @@ const Profile = () => {
         >
           <Shield className="w-4 h-4 inline-block mr-2" />
           Verification
+        </button>
+        <button
+          className={`px-4 py-2 font-medium transition-colors ${
+            activeTab === "wallet"
+              ? "border-b-2 border-primary text-primary"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+          onClick={() => setActiveTab("wallet")}
+        >
+          <Wallet className="w-4 h-4 inline-block mr-2" />
+          Wallet
         </button>
       </div>
 
@@ -604,6 +624,51 @@ const Profile = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Wallet Tab */}
+      {activeTab === "wallet" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Wallet</CardTitle>
+            <CardDescription>Manage your funds and withdrawals</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="bg-primary/5 border-primary/20">
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium text-muted-foreground">Total Balance</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">₦{walletBalance.toLocaleString()}</div>
+                    </CardContent>
+                </Card>
+                <Card className="bg-green-500/5 border-green-500/20">
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium text-muted-foreground">Withdrawable Balance</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-green-600">₦{withdrawableAmount.toLocaleString()}</div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div className="flex justify-end">
+                <Button 
+                    onClick={() => setIsWithdrawalModalOpen(true)} 
+                    disabled={withdrawableAmount < 100}
+                >
+                    Withdraw Funds
+                </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <WithdrawalModal 
+        isOpen={isWithdrawalModalOpen} 
+        onClose={() => setIsWithdrawalModalOpen(false)} 
+        balance={withdrawableAmount}
+      />
 
       {/* Quick Info */}
       <Card>

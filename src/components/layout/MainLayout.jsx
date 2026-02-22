@@ -4,9 +4,11 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Bell, LayoutDashboard, Package, ShoppingCart, Briefcase, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ROUTES } from '@/constants';
+import { useChat } from '@/contexts/ChatContext';
 
 const MainLayout = () => {
   const { user } = useAuth();
+  const { unreadCount } = useChat();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -73,13 +75,20 @@ const MainLayout = () => {
                 key={item.path}
                 onClick={() => navigate(item.path)}
                 className={cn(
-                  'flex flex-col items-center gap-1 px-1 sm:px-4 py-2 rounded-lg transition-colors',
+                  'flex flex-col items-center gap-1 px-1 sm:px-4 py-2 rounded-lg transition-colors relative',
                   isActive
                     ? 'text-primary bg-primary/5'
                     : 'text-gray-500 hover:text-primary hover:bg-gray-50'
                 )}
               >
-                <Icon className="w-5 h-5" />
+                <div className="relative">
+                  <Icon className="w-5 h-5" />
+                  {item.name === 'Messages' && unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 bg-secondary text-white text-[10px] font-bold rounded-full">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </div>
                 <span className="text-xs font-medium">{item.name}</span>
               </button>
             );

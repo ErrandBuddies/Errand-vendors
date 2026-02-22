@@ -1,5 +1,5 @@
-import axiosInstance from '@/lib/axios';
-import { API_ENDPOINTS } from '@/constants';
+import axiosInstance from "@/lib/axios";
+import { API_ENDPOINTS } from "@/constants";
 
 // ==================================================
 // *** AUTH SERVICES ***
@@ -21,27 +21,42 @@ export const authService = {
   },
 
   verifyEmail: async (payload) => {
-    const response = await axiosInstance.post(API_ENDPOINTS.VERIFY_EMAIL, payload);
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.VERIFY_EMAIL,
+      payload,
+    );
     return response.data;
   },
 
   resendOTP: async (payload) => {
-    const response = await axiosInstance.post(API_ENDPOINTS.RESEND_OTP, payload);
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.RESEND_OTP,
+      payload,
+    );
     return response.data;
   },
 
   verifyOTP: async (payload) => {
-    const response = await axiosInstance.post(API_ENDPOINTS.VERIFY_OTP, payload);
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.VERIFY_OTP,
+      payload,
+    );
     return response.data;
   },
 
   initiateResetPassword: async (payload) => {
-    const response = await axiosInstance.post(API_ENDPOINTS.INITIATE_RESET_PASSWORD, payload);
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.INITIATE_RESET_PASSWORD,
+      payload,
+    );
     return response.data;
   },
 
   completeResetPassword: async (payload) => {
-    const response = await axiosInstance.post(API_ENDPOINTS.COMPLETE_RESET_PASSWORD, payload);
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.COMPLETE_RESET_PASSWORD,
+      payload,
+    );
     return response.data;
   },
 };
@@ -52,7 +67,9 @@ export const authService = {
 export const dashboardService = {
   getVendorProducts: async (params) => {
     const queryString = new URLSearchParams(params).toString();
-    const response = await axiosInstance.get(`${API_ENDPOINTS.VENDOR_PRODUCTS}?${queryString}`);
+    const response = await axiosInstance.get(
+      `${API_ENDPOINTS.VENDOR_PRODUCTS}?${queryString}`,
+    );
     return response.data;
   },
 };
@@ -67,27 +84,37 @@ export const profileService = {
   },
 
   updateProfile: async (payload) => {
-    const response = await axiosInstance.patch(API_ENDPOINTS.UPDATE_PROFILE, payload);
+    const response = await axiosInstance.patch(
+      API_ENDPOINTS.UPDATE_PROFILE,
+      payload,
+    );
     return response.data;
   },
 
   updateAddress: async (payload) => {
-    const response = await axiosInstance.patch(API_ENDPOINTS.UPDATE_PROFILE, payload);
+    const response = await axiosInstance.patch(
+      API_ENDPOINTS.UPDATE_PROFILE,
+      payload,
+    );
     return response.data;
   },
 
   verifyProfile: async (payload) => {
     const formData = new FormData();
-    formData.append('id_num', payload.id_num);
-    formData.append('country_code', payload.country_code);
-    formData.append('dob', payload.dob);
-    formData.append('image', payload.image);
+    formData.append("id_num", payload.id_num);
+    formData.append("country_code", payload.country_code);
+    formData.append("dob", payload.dob);
+    formData.append("image", payload.image);
 
-    const response = await axiosInstance.patch(API_ENDPOINTS.VERIFY_PROFILE, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
+    const response = await axiosInstance.patch(
+      API_ENDPOINTS.VERIFY_PROFILE,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       },
-    });
+    );
     return response.data;
   },
 };
@@ -103,50 +130,59 @@ export const productService = {
 
   createProduct: async (payload) => {
     const formData = new FormData();
-    
+
     // Add all non-file fields
-    Object.keys(payload).forEach(key => {
-      if (key === 'images') return; // Handle images separately
-      
+    Object.keys(payload).forEach((key) => {
+      if (key === "images") return; // Handle images separately
+
       const value = payload[key];
       if (Array.isArray(value)) {
         // For arrays like colors, sizes, tags
-        value.forEach(item => formData.append(`${key}[]`, item));
+        value.forEach((item) => formData.append(`${key}[]`, item));
       } else if (value !== undefined && value !== null) {
         formData.append(key, value);
       }
     });
-    
+
     // Add images
     if (payload.images && payload.images.length > 0) {
-      payload.images.forEach(image => {
-        formData.append('images', image);
+      payload.images.forEach((image) => {
+        formData.append("images", image);
       });
     }
 
-    const response = await axiosInstance.post(API_ENDPOINTS.PRODUCTS, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.PRODUCTS,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       },
-    });
+    );
     return response.data;
   },
 
   updateProduct: async (id, payload) => {
-    const response = await axiosInstance.patch(`${API_ENDPOINTS.UPDATE_PRODUCT}/${id}`, payload);
+    const response = await axiosInstance.patch(
+      `${API_ENDPOINTS.UPDATE_PRODUCT}/${id}`,
+      payload,
+    );
     return response.data;
   },
 
   deleteProduct: async (id, reason) => {
-    const params = reason ? `?reason=${reason}` : '';
-    const response = await axiosInstance.delete(`${API_ENDPOINTS.DELETE_PRODUCT}/${id}${params}`);
+    const params = reason ? `?reason=${reason}` : "";
+    const response = await axiosInstance.delete(
+      `${API_ENDPOINTS.DELETE_PRODUCT}/${id}${params}`,
+    );
     return response.data;
   },
 
   uploadImages: async (productId, images) => {
     const formData = new FormData();
-    images.forEach(image => {
-      formData.append('images', image);
+    images.forEach((image) => {
+      formData.append("images", image);
     });
 
     const response = await axiosInstance.post(
@@ -154,13 +190,12 @@ export const productService = {
       formData,
       {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
-      }
+      },
     );
     return response.data;
   },
-
 
   getProductReviews: async (productId) => {
     const response = await axiosInstance.get(`/products/reviews/${productId}`);
@@ -168,7 +203,9 @@ export const productService = {
   },
 
   deleteImage: async (productId, imageId) => {
-    const response = await axiosInstance.delete(`${API_ENDPOINTS.DELETE_PRODUCT_IMAGE}/${productId}/${imageId}`);
+    const response = await axiosInstance.delete(
+      `${API_ENDPOINTS.DELETE_PRODUCT_IMAGE}/${productId}/${imageId}`,
+    );
     return response.data;
   },
 };
@@ -178,25 +215,34 @@ export const productService = {
 // ==================================================
 export const sponsorshipService = {
   getSponsorshipPlans: async () => {
-    const response = await axiosInstance.get(`${API_ENDPOINTS.SPONSORSHIP_PLANS}`);
+    const response = await axiosInstance.get(
+      `${API_ENDPOINTS.SPONSORSHIP_PLANS}`,
+    );
     return response.data;
   },
 
   initiateSponsorship: async (payload) => {
     const formData = new FormData();
-    Object.keys(payload).forEach(key => {
+    Object.keys(payload).forEach((key) => {
       formData.append(key, payload[key]);
     });
-    const response = await axiosInstance.post(`${API_ENDPOINTS.INITIATE_SPONSORSHIP}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
+    const response = await axiosInstance.post(
+      `${API_ENDPOINTS.INITIATE_SPONSORSHIP}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       },
-    });
+    );
     return response.data;
   },
 
   completeSponsorship: async (payload) => {
-    const response = await axiosInstance.post(`${API_ENDPOINTS.COMPLETE_SPONSORSHIP}`, payload);
+    const response = await axiosInstance.post(
+      `${API_ENDPOINTS.COMPLETE_SPONSORSHIP}`,
+      payload,
+    );
     return response.data;
   },
 };
@@ -212,50 +258,59 @@ export const serviceService = {
 
   createService: async (payload) => {
     const formData = new FormData();
-    
+
     // Add all non-file fields
-    Object.keys(payload).forEach(key => {
-      if (key === 'images') return; // Handle images separately
-      
+    Object.keys(payload).forEach((key) => {
+      if (key === "images") return; // Handle images separately
+
       const value = payload[key];
       if (Array.isArray(value)) {
         // For arrays like tags
-        value.forEach(item => formData.append(`${key}[]`, item));
+        value.forEach((item) => formData.append(`${key}[]`, item));
       } else if (value !== undefined && value !== null) {
         formData.append(key, value);
       }
     });
-    
+
     // Add images
     if (payload.images && payload.images.length > 0) {
-      payload.images.forEach(image => {
-        formData.append('images', image);
+      payload.images.forEach((image) => {
+        formData.append("images", image);
       });
     }
 
-    const response = await axiosInstance.post(API_ENDPOINTS.SERVICES, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.SERVICES,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       },
-    });
+    );
     return response.data;
   },
 
   updateService: async (id, payload) => {
-    const response = await axiosInstance.patch(`${API_ENDPOINTS.UPDATE_SERVICE}/${id}`, payload);
+    const response = await axiosInstance.patch(
+      `${API_ENDPOINTS.UPDATE_SERVICE}/${id}`,
+      payload,
+    );
     return response.data;
   },
 
   deleteService: async (id, reason) => {
-    const params = reason ? `?reason=${reason}` : '';
-    const response = await axiosInstance.delete(`${API_ENDPOINTS.DELETE_SERVICE}/${id}${params}`);
+    const params = reason ? `?reason=${reason}` : "";
+    const response = await axiosInstance.delete(
+      `${API_ENDPOINTS.DELETE_SERVICE}/${id}${params}`,
+    );
     return response.data;
   },
 
   uploadImages: async (serviceId, images) => {
     const formData = new FormData();
-    images.forEach(image => {
-      formData.append('images', image);
+    images.forEach((image) => {
+      formData.append("images", image);
     });
 
     const response = await axiosInstance.patch(
@@ -263,15 +318,17 @@ export const serviceService = {
       formData,
       {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
-      }
+      },
     );
     return response.data;
   },
 
   deleteImage: async (serviceId, imageId) => {
-    const response = await axiosInstance.delete(`${API_ENDPOINTS.DELETE_SERVICE_IMAGE}/${serviceId}/${imageId}`);
+    const response = await axiosInstance.delete(
+      `${API_ENDPOINTS.DELETE_SERVICE_IMAGE}/${serviceId}/${imageId}`,
+    );
     return response.data;
   },
 
@@ -291,7 +348,10 @@ export const orderService = {
   },
 
   confirmOrder: async (payload) => {
-    const response = await axiosInstance.post(API_ENDPOINTS.CONFIRM_ORDER, payload);
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.CONFIRM_ORDER,
+      payload,
+    );
     return response.data;
   },
 };
@@ -307,9 +367,39 @@ export const chatService = {
 
   getMessages: async (recipientId, params = {}) => {
     const queryString = new URLSearchParams(params).toString();
-    const url = `${API_ENDPOINTS.GET_MESSAGES}/${recipientId}${queryString ? `?${queryString}` : ''}`;
+    const url = `${API_ENDPOINTS.GET_MESSAGES}/${recipientId}${queryString ? `?${queryString}` : ""}`;
     const response = await axiosInstance.get(url);
     return response.data;
   },
 };
 
+// ==================================================
+// *** WALLET SERVICES ***
+// ==================================================
+export const walletService = {
+  getWalletBalance: async () => {
+    const response = await axiosInstance.get(API_ENDPOINTS.WALLET_BALANCE);
+    return response.data;
+  },
+
+  getBanks: async () => {
+    const response = await axiosInstance.get(API_ENDPOINTS.BANKS);
+    return response.data;
+  },
+
+  initiateWithdrawal: async (payload) => {
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.INITIATE_WITHDRAWAL,
+      payload,
+    );
+    return response.data;
+  },
+
+  completeWithdrawal: async (payload) => {
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.COMPLETE_WITHDRAWAL,
+      payload,
+    );
+    return response.data;
+  },
+};
