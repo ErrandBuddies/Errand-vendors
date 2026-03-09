@@ -69,7 +69,7 @@ const MainLayout = () => {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
-            
+
             return (
               <button
                 key={item.path}
@@ -83,9 +83,9 @@ const MainLayout = () => {
               >
                 <div className="relative">
                   <Icon className="w-5 h-5" />
-                  {item.name === 'Messages' && unreadCount > 0 && (
+                  {item.name === 'Messages' && unreadCount.length > 0 && (
                     <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 bg-secondary text-white text-[10px] font-bold rounded-full">
-                      {unreadCount > 99 ? '99+' : unreadCount}
+                      {unreadCount.length > 99 ? '99+' : unreadCount.length}
                     </span>
                   )}
                 </div>

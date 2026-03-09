@@ -10,6 +10,7 @@ import useMessages from '@/hooks/queries/useMessages';
 import useSendMessage from '@/hooks/queries/useSendMessage';
 import { useSocket } from '@/hooks/useSocket';
 import { useAuth } from '@/hooks/useAuth';
+import { useChat } from '@/contexts/ChatContext';
 
 /**
  * ChatWindow Component
@@ -22,15 +23,16 @@ export const ChatWindow = ({ conversation }) => {
   const messagesEndRef = useRef(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [hasScrolledUp, setHasScrolledUp] = useState(false);
+  const { setUnreadCount } = useChat();
 
   const recipientId = conversation?.counterpartDetails?._id;
-  const { 
-    data, 
-    isLoading, 
-    error, 
-    fetchNextPage, 
-    hasNextPage, 
-    isFetchingNextPage 
+  const {
+    data,
+    isLoading,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
   } = useMessages(recipientId);
 
   const { sendMessage, isSending } = useSendMessage(recipientId);
@@ -44,7 +46,7 @@ export const ChatWindow = ({ conversation }) => {
     if (!hasScrolledUp && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-    
+
     // Mark as read if we receive a new message while the chat is open
     const lastMessage = messages[messages.length - 1];
     if (lastMessage && lastMessage.sender === recipientId && socket) {
@@ -64,7 +66,8 @@ export const ChatWindow = ({ conversation }) => {
     if (socket && recipientId) {
       socket.emit('messagesRead', { recipientID: recipientId });
     }
-  }, [socket, recipientId]);
+    setUnreadCount(prev => prev.filter((id) => id !== conversation._id));
+  }, [socket, messages, recipientId]);
 
   // Handle scroll to detect if user scrolled up
   const handleScroll = () => {
@@ -72,14 +75,14 @@ export const ChatWindow = ({ conversation }) => {
 
     const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
     const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
-    
+
     setShowScrollButton(!isNearBottom);
     setHasScrolledUp(!isNearBottom);
 
     // Load more messages when scrolled to top
     if (scrollTop === 0 && hasNextPage && !isFetchingNextPage) {
       const previousScrollHeight = scrollRef.current.scrollHeight;
-      
+
       fetchNextPage().then(() => {
         // Maintain scroll position after loading more messages
         if (scrollRef.current) {
@@ -136,7 +139,7 @@ export const ChatWindow = ({ conversation }) => {
       </div>
 
       {/* Messages */}
-      <div 
+      <div
         ref={scrollRef}
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto p-4 bg-muted/10 relative"
@@ -181,8 +184,8 @@ export const ChatWindow = ({ conversation }) => {
       </div>
 
       {/* Input */}
-      <MessageInput 
-        onSend={handleSend} 
+      <MessageInput
+        onSend={handleSend}
         isSending={isSending}
         disabled={!recipientId}
       />

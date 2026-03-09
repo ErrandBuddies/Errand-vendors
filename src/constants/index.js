@@ -2,8 +2,7 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export const VENDOR_URL = import.meta.env.VITE_VENDOR_URL;
 // Socket.IO URL (same as API base URL but without /api suffix)
 export const SOCKET_URL =
-  import.meta.env.VITE_API_BASE_URL?.replace("/api", "") ||
-  "http://localhost:4000";
+  API_BASE_URL?.replace("/api", "") || "http://localhost:4000";
 
 export const ROUTES = {
   // Auth routes

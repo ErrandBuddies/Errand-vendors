@@ -8,7 +8,7 @@ const ChatContext = createContext();
 export const ChatProvider = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
   const { socket, isConnected } = useSocket();
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState([]);
 
   // Fetch initial unread count or conversations
   const fetchUnreadCount = useCallback(async () => {
@@ -16,8 +16,8 @@ export const ChatProvider = ({ children }) => {
     try {
       const response = await chatService.getConversations();
       const conversations = response.data || [];
-      const totalUnread = conversations.reduce((acc, conv) => acc + (conv.unreadCount || 0), 0);
-      setUnreadCount(totalUnread);
+      const unreadMessages = conversations.filter((conv) => conv.unread).map((conv) => conv._id);
+      setUnreadCount(unreadMessages);
     } catch (error) {
       console.error('Error fetching unread count:', error);
     }
@@ -27,7 +27,7 @@ export const ChatProvider = ({ children }) => {
     if (isAuthenticated) {
       fetchUnreadCount();
     } else {
-      setUnreadCount(0);
+      setUnreadCount([]);
     }
   }, [isAuthenticated, fetchUnreadCount]);
 
@@ -37,25 +37,33 @@ export const ChatProvider = ({ children }) => {
     const handleNewMessage = (data) => {
       if (data?.success && data?.message) {
         const message = data.message;
-        
+
         // Emit messageDelivered event globally
         if (message.sender !== user?._id) {
           socket.emit('messageDelivered', { messageID: message._id });
-          
+
           // Increment unread count if we are not on the messages page or in this specific conversation
           // Note: Specific page logic might be better handled by checking the current route or active recipient
           // For now, we increment globally, and rely on the Messages page to mark as read.
-          setUnreadCount(prev => prev + 1);
+          // setUnreadCount(prev => prev + 1);
         }
       }
     };
 
     const handleMessagesRead = (data) => {
+      console.log("Messages read: ", data)
       // When messages are read, we should probably refetch or recalculate
       // Simplest is to refetch the total unread count
       fetchUnreadCount();
     };
 
+    socket.on('inbox', ({ success, inbox }) => {
+      if (success) {
+        if (inbox && inbox.unread) {
+          setUnreadCount(prev => [...new Set([...prev, inbox._id])]);
+        }
+      }
+    })
     socket.on('message', handleNewMessage);
     socket.on('messagesRead', handleMessagesRead);
 

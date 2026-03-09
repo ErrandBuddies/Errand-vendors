@@ -2,18 +2,19 @@ import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
 /**
  * ConversationItem Component
  * Displays individual conversation in the list with customer details and latest message
  */
-export const ConversationItem = ({ 
-  conversation, 
-  isSelected, 
-  onClick 
+export const ConversationItem = ({
+  conversation,
+  isSelected,
+  onClick
 }) => {
   const { counterpartDetails, latestMessage, unread, lastUpdated } = conversation;
-  
+  const [opened, setOpened] = useState(false);
   const getInitials = (firstname, lastname) => {
     return `${firstname?.[0] || ''}${lastname?.[0] || ''}`.toUpperCase();
   };
@@ -28,11 +29,11 @@ export const ConversationItem = ({
 
   return (
     <div
-      onClick={onClick}
+      onClick={() => { onClick(); setOpened(true); }}
       className={cn(
         'flex items-start gap-3 p-4 cursor-pointer transition-colors border-b hover:bg-accent',
         isSelected && 'bg-accent',
-        unread && 'bg-blue-50 hover:bg-blue-100'
+        unread && !opened && 'bg-blue-50 hover:bg-blue-100'
       )}
     >
       <Avatar className="w-12 h-12 flex-shrink-0">
@@ -52,12 +53,12 @@ export const ConversationItem = ({
             </span>
           )}
         </div>
-        
+
         <div className="flex items-center justify-between gap-2">
           <p className="text-sm text-muted-foreground truncate flex-1">
             {latestMessage || 'No messages yet'}
           </p>
-          {unread && (
+          {unread && !opened && (
             <Badge variant="default" className="ml-auto flex-shrink-0 h-5 w-5 rounded-full p-0 flex items-center justify-center">
               <span className="sr-only">New message</span>
             </Badge>
