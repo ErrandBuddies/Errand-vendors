@@ -30,7 +30,7 @@ export function EditProductDialog({ product, open, onOpenChange, onSuccess }) {
 
   const category = watch("category");
   const state = watch('state');
-  
+
   const subcategories = category
     ? productCategories.find((c) => c.name === category)?.subcategories || []
     : [];
@@ -268,7 +268,7 @@ export function EditProductDialog({ product, open, onOpenChange, onSuccess }) {
             </div>
 
             <div>
-              <Label htmlFor="edit-discount_price">Discount Price</Label>
+              <Label htmlFor="edit-discount_price">Slashed Price</Label>
               <Input
                 id="edit-discount_price"
                 type="number"

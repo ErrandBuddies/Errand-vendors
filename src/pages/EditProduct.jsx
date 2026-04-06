@@ -233,7 +233,7 @@ const EditProduct = ({
             </div>
 
             <div>
-              <Label htmlFor="edit-discount_price">Discount Price</Label>
+              <Label htmlFor="edit-discount_price">Slashed Price</Label>
               <Input
                 id="edit-discount_price"
                 type="number"

@@ -137,11 +137,12 @@ export function SponsorProductDialog({ product, open, onOpenChange }) {
     };
 
     // Wallet Payment
-    if (payment.means === "wallet" ) {
+    if (payment.means === "wallet") {
       await completeTransaction(payment.reference);
     }
     // Online Payment (Paystack)
     else if (payment.means === "online" || payment.means === "hybrid") {
+      onOpenChange(false);
       try {
         await paystackPayment({
           accessCode: payment.online.accessCode,
@@ -367,10 +368,10 @@ export function SponsorProductDialog({ product, open, onOpenChange }) {
               {payment.means === "wallet"
                 ? "Wallet"
                 : payment.means === "hybrid"
-                ? "Wallet + Paystack"
-                : "Paystack"}
+                  ? "Wallet + Paystack"
+                  : "Paystack"}
             </div>
-            
+
             {payment.means === "wallet" && (
               <div className="space-y-1 mt-1">
                 <div className="flex justify-between items-center">
@@ -427,10 +428,9 @@ export function SponsorProductDialog({ product, open, onOpenChange }) {
                 Processing...
               </>
             ) : (
-              `Pay ${
-                product?.currency
-              } ${(payment.means === "hybrid" 
-                ? payment.online.amountPaid 
+              `Pay ${product?.currency
+              } ${(payment.means === "hybrid"
+                ? payment.online.amountPaid
                 : sponsorshipDetails.amount
               )?.toLocaleString()}`
             )}

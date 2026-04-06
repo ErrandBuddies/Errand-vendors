@@ -42,7 +42,7 @@ const Products = () => {
   const { data: products = [], isLoading, isError, error } = useProductsQuery();
   const createProductMutation = useCreateProductMutation();
   const deleteProductMutation = useDeleteProductMutation();
-  
+
 
   // Local state
   const location = useLocation();
@@ -133,7 +133,7 @@ const Products = () => {
         action: (
           <Button
             variant="outline"
-            onClick={() => navigate("/profile", {state: {tab: "verification", formData: getValues()}})}
+            onClick={() => navigate("/profile", { state: { tab: "verification", formData: getValues() } })}
           >
             Verify Now
           </Button>
@@ -147,21 +147,21 @@ const Products = () => {
       ...data,
       colors: data.colors
         ? data.colors
-            .split(",")
-            .map((c) => c.trim())
-            .filter(Boolean)
+          .split(",")
+          .map((c) => c.trim())
+          .filter(Boolean)
         : [],
       sizes: data.sizes
         ? data.sizes
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean)
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
         : [],
       tags: data.tags
         ? data.tags
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean)
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean)
         : [],
       images: images,
     };
@@ -290,7 +290,7 @@ const Products = () => {
             {/* Basic Info */}
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
-                <Label htmlFor="name">Product Name *</Label>
+                <Label htmlFor="name">Product Name <span className="text-red-500">*</span></Label>
                 <Input
                   id="name"
                   {...register("name", {
@@ -306,7 +306,7 @@ const Products = () => {
               </div>
 
               <div className="col-span-2">
-                <Label htmlFor="desc">Description *</Label>
+                <Label htmlFor="desc">Description <span className="text-red-500">*</span></Label>
                 <Textarea
                   id="desc"
                   {...register("desc", { required: "Description is required" })}
@@ -321,7 +321,7 @@ const Products = () => {
               </div>
 
               <div>
-                <Label htmlFor="category">Category *</Label>
+                <Label htmlFor="category">Category <span className="text-red-500">*</span></Label>
                 <Controller
                   name="category"
                   control={control}
@@ -349,7 +349,7 @@ const Products = () => {
               </div>
 
               <div>
-                <Label htmlFor="sub_category">Subcategory *</Label>
+                <Label htmlFor="sub_category">Subcategory <span className="text-red-500">*</span></Label>
                 <Controller
                   name="sub_category"
                   control={control}
@@ -381,7 +381,7 @@ const Products = () => {
               </div>
 
               <div>
-                <Label htmlFor="price">Price *</Label>
+                <Label htmlFor="price">Price <span className="text-red-500">*</span></Label>
                 <Input
                   id="price"
                   type="number"
@@ -399,7 +399,7 @@ const Products = () => {
               </div>
 
               <div>
-                <Label htmlFor="currency">Currency *</Label>
+                <Label htmlFor="currency">Currency <span className="text-red-500">*</span></Label>
                 <Controller
                   name="currency"
                   control={control}
@@ -427,7 +427,7 @@ const Products = () => {
               </div>
 
               <div>
-                <Label htmlFor="stock_type">Stock Type *</Label>
+                <Label htmlFor="stock_type">Stock Type <span className="text-red-500">*</span></Label>
                 <Controller
                   name="stock_type"
                   control={control}
@@ -451,7 +451,7 @@ const Products = () => {
               </div>
 
               <div>
-                <Label htmlFor="amount_in_stock">Stock Amount *</Label>
+                <Label htmlFor="amount_in_stock">Stock Amount <span className="text-red-500">*</span></Label>
                 <Input
                   id="amount_in_stock"
                   type="number"
@@ -469,7 +469,7 @@ const Products = () => {
               </div>
 
               <div>
-                <Label htmlFor="condition">Condition *</Label>
+                <Label htmlFor="condition">Condition <span className="text-red-500">*</span></Label>
                 <Input
                   id="condition"
                   {...register("condition", {
@@ -503,10 +503,10 @@ const Products = () => {
                 />
               </div>
 
-              {/* <div>
-                <Label htmlFor="discount_price">Discount Price</Label>
+              <div>
+                <Label htmlFor="discount_price">Slashed Price</Label>
                 <Input id="discount_price" type="number" {...register('discount_price')} placeholder="0.00" />
-              </div> */}
+              </div>
 
               <div className="col-span-2">
                 <Label htmlFor="colors">Colors (comma-separated)</Label>
@@ -552,7 +552,7 @@ const Products = () => {
               <h4 className="font-semibold">Location</h4>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="state">State *</Label>
+                  <Label htmlFor="state">State <span className="text-red-500">*</span></Label>
                   <Controller
                     name="state"
                     control={control}
@@ -580,7 +580,7 @@ const Products = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="city">City *</Label>
+                  <Label htmlFor="city">City <span className="text-red-500">*</span></Label>
                   <Controller
                     name="city"
                     control={control}
@@ -612,7 +612,7 @@ const Products = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="country">Country *</Label>
+                  <Label htmlFor="country">Country <span className="text-red-500">*</span></Label>
                   <Input
                     id="country"
                     {...register('country', {
@@ -642,7 +642,7 @@ const Products = () => {
 
             {/* Images */}
             <div>
-              <Label>Product Images * (Max 5)</Label>
+              <Label>Product Images <span className="text-red-500">*</span> (Max 5)</Label>
               <Controller
                 name="images"
                 control={control}
