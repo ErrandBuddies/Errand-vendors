@@ -55,6 +55,7 @@ const Products = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [subcategories, setSubcategories] = useState([]);
   const [useVendorAddress, setUseVendorAddress] = useState(false);
+  const [deleteReason, setDeleteReason] = useState("")
 
   const { user } = useAuth();
   const { toast } = useToast();
@@ -172,10 +173,10 @@ const Products = () => {
     setValue("images", []);
   };
 
-  const onDeleteProduct = async () => {
+  const onDeleteProduct = async ({ softDelete, reason }) => {
     if (!selectedProduct) return;
 
-    await deleteProductMutation.mutateAsync({ id: selectedProduct._id });
+    await deleteProductMutation.mutateAsync({ id: selectedProduct._id, softDelete, reason });
     setShowDeleteDialog(false);
     setSelectedProduct(null);
   };
@@ -494,7 +495,7 @@ const Products = () => {
               </div>
 
               <div>
-                <Label htmlFor="weight">Weight</Label>
+                <Label htmlFor="weight">Weight (grams)</Label>
                 <Input
                   id="weight"
                   type="number"
@@ -504,8 +505,8 @@ const Products = () => {
               </div>
 
               <div>
-                <Label htmlFor="discount_price">Slashed Price</Label>
-                <Input id="discount_price" type="number" {...register('discount_price')} placeholder="0.00" />
+                <Label htmlFor="slashed_price">Slashed Price</Label>
+                <Input id="slashed_price" type="number" {...register('slashed_price')} placeholder="0.00" />
               </div>
 
               <div className="col-span-2">
@@ -708,8 +709,7 @@ const Products = () => {
           <DialogHeader>
             <DialogTitle>Delete Product</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete "{selectedProduct?.name}"? This
-              action cannot be undone.
+              Are you sure you want to delete "{selectedProduct?.name}"?
               {selectedProduct?.sponsored && (
                 <p className="mt-2 font-semibold text-orange-600">
                   Warning: This product has active sponsorship!
@@ -717,22 +717,71 @@ const Products = () => {
               )}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+
+          <div className="space-y-3 py-2">
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">Soft delete</span> hides
+              the product without permanently removing it.{" "}
+              <span className="font-medium text-foreground">Permanent delete</span>{" "}
+              removes it forever and cannot be undone.
+            </p>
+
+            <div className="space-y-1.5">
+              <label htmlFor="delete-reason" className="text-sm font-medium">
+                Reason for permanent deletion{" "}
+                <span className="text-destructive">*</span>
+              </label>
+              <textarea
+                id="delete-reason"
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 resize-none"
+                rows={3}
+                maxLength={160}
+                placeholder="Enter a reason (required for permanent deletion)..."
+                value={deleteReason}
+                onChange={(e) => setDeleteReason(e.target.value)}
+                disabled={deleteProductMutation.isPending}
+              />
+              <p className="text-xs text-muted-foreground text-right">
+                {deleteReason.trim().split(/\s+/).filter(Boolean).length} / 20 words
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button
               variant="outline"
               onClick={() => {
                 setShowDeleteDialog(false);
                 setSelectedProduct(null);
+                setDeleteReason("");
               }}
+              disabled={deleteProductMutation.isPending}
             >
               Cancel
             </Button>
             <Button
-              variant="destructive"
-              onClick={onDeleteProduct}
+              variant="secondary"
+              onClick={() => {
+                onDeleteProduct({ softDelete: true });
+                setDeleteReason("");
+              }}
               disabled={deleteProductMutation.isPending}
             >
-              {deleteProductMutation.isPending ? "Deleting..." : "Delete"}
+              {deleteProductMutation.isPending ? "Deleting..." : "Soft Delete"}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                onDeleteProduct({ reason: deleteReason.trim(), softDelete: false });
+                setDeleteReason("");
+              }}
+              disabled={
+                deleteProductMutation.isPending ||
+                deleteReason.trim().split(/\s+/).filter(Boolean).length === 0 ||
+                deleteReason.trim().split(/\s+/).filter(Boolean).length > 20
+              }
+            >
+              {deleteProductMutation.isPending ? "Deleting..." : "Delete Permanently"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -57,6 +57,7 @@ export function EditProductDialog({ product, open, onOpenChange, onSuccess }) {
         brand: product.brand || "",
         weight: product.weight || "",
         discount_price: product.discount_price || "",
+        slashed_price: product.slashed_price || "",
         colors: product.colors?.join(", ") || "",
         sizes: product.sizes?.join(", ") || "",
         tags: product.tags?.join(", ") || "",
@@ -268,11 +269,11 @@ export function EditProductDialog({ product, open, onOpenChange, onSuccess }) {
             </div>
 
             <div>
-              <Label htmlFor="edit-discount_price">Slashed Price</Label>
+              <Label htmlFor="edit-slashed_price">Slashed Price</Label>
               <Input
-                id="edit-discount_price"
+                id="edit-slashed_price"
                 type="number"
-                {...register("discount_price")}
+                {...register("slashed_price")}
                 placeholder="0.00"
               />
             </div>

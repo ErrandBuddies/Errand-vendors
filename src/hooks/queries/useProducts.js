@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { productService } from "@/services/api";
 import { QUERY_KEYS } from "./queryKeys";
 import { useToast } from "@/hooks/use-toast";
+import { getErrorMessage } from "@/lib/utils";
 
 /**
  * Query hook for fetching all products
@@ -39,7 +40,7 @@ export function useCreateProductMutation() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "Failed to add product",
+        description: getErrorMessage(error) || "Failed to add product",
       });
     },
   });
@@ -68,7 +69,7 @@ export function useUpdateProductMutation() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "Failed to update product",
+        description: getErrorMessage(error) || "Failed to update product",
       });
     },
   });
@@ -82,7 +83,8 @@ export function useDeleteProductMutation() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: ({ id, reason }) => productService.deleteProduct(id, reason),
+    mutationFn: ({ id, reason, softDelete }) =>
+      productService.deleteProduct(id, reason, softDelete),
     onMutate: async ({ id }) => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: QUERY_KEYS.PRODUCTS });
@@ -93,7 +95,7 @@ export function useDeleteProductMutation() {
       // Optimistically update by removing the product
       queryClient.setQueryData(
         QUERY_KEYS.PRODUCTS,
-        (old) => old?.filter((product) => product._id !== id) || []
+        (old) => old?.filter((product) => product._id !== id) || [],
       );
 
       // Return context with previous products for rollback
@@ -115,7 +117,7 @@ export function useDeleteProductMutation() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "Failed to delete product",
+        description: getErrorMessage(error) || "Failed to delete product",
       });
     },
     onSettled: () => {

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { serviceService } from "@/services/api";
 import { QUERY_KEYS } from "./queryKeys";
 import { useToast } from "@/hooks/use-toast";
+import { getErrorMessage } from "@/lib/utils";
 
 /**
  * Query hook for fetching all services
@@ -39,7 +40,7 @@ export function useCreateServiceMutation() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "Failed to add service",
+        description: getErrorMessage(error) || "Failed to add service",
       });
     },
   });
@@ -68,7 +69,7 @@ export function useUpdateServiceMutation() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "Failed to update service",
+        description: getErrorMessage(error) || "Failed to update service",
       });
     },
   });
@@ -115,7 +116,7 @@ export function useDeleteServiceMutation() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "Failed to delete service",
+        description: getErrorMessage(error) || "Failed to delete service",
       });
     },
     onSettled: () => {

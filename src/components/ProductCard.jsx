@@ -5,8 +5,8 @@ import { Eye, Edit, Trash2, TrendingUp } from 'lucide-react';
 import { imagePlaceholder } from '../constants';
 
 const ProductCard = ({ product, onView, onEdit, onDelete, onSponsor }) => {
-  const firstImage = product.images && product.images.length > 0 
-    ? product.images[0] 
+  const firstImage = product.images && product.images.length > 0
+    ? product.images[0]
     : '/placeholder-product.png';
 
   const isSponsored = product?.sponsorship?.status === "active" || false;
@@ -49,9 +49,9 @@ const ProductCard = ({ product, onView, onEdit, onDelete, onSponsor }) => {
             <p className="text-lg font-bold text-primary">
               {product.currency} {product.price?.toLocaleString()}
             </p>
-            {product.discount_price && product.discount_price !== product.price && (
+            {product.slashed_price && product.slashed_price !== product.price && (
               <p className="text-xs text-muted-foreground line-through">
-                {product.currency} {product.discount_price?.toLocaleString()}
+                {product.currency} {product.slashed_price?.toLocaleString()}
               </p>
             )}
           </div>

@@ -171,10 +171,12 @@ export const productService = {
     return response.data;
   },
 
-  deleteProduct: async (id, reason) => {
-    const params = reason ? `?reason=${reason}` : "";
+  deleteProduct: async (id, reason, softDelete) => {
+    const params = new URLSearchParams();
+    if (reason) params.append("reason", reason);
+    if (softDelete) params.append("softDelete", softDelete);
     const response = await axiosInstance.delete(
-      `${API_ENDPOINTS.DELETE_PRODUCT}/${id}${params}`,
+      `${API_ENDPOINTS.DELETE_PRODUCT}/${id}?${params.toString()}`,
     );
     return response.data;
   },

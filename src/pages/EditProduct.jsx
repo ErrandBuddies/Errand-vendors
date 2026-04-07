@@ -223,7 +223,7 @@ const EditProduct = ({
             </div>
 
             <div>
-              <Label htmlFor="edit-weight">Weight</Label>
+              <Label htmlFor="edit-weight">Weight (grams)</Label>
               <Input
                 id="edit-weight"
                 type="number"
@@ -233,7 +233,7 @@ const EditProduct = ({
             </div>
 
             <div>
-              <Label htmlFor="edit-discount_price">Slashed Price</Label>
+              <Label htmlFor="edit-discount_price">Slasheds Price</Label>
               <Input
                 id="edit-discount_price"
                 type="number"
