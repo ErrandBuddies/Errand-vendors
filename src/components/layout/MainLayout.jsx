@@ -45,10 +45,10 @@ const MainLayout = () => {
         <div className="px-4 py-4 flex items-center justify-between">
           <h1 className="text-xl font-bold text-primary">{getPageTitle()}</h1>
           <div className="flex items-center gap-3">
-            <button className="relative p-2 hover:bg-gray-100 rounded-full">
+            {/* <button className="relative p-2 hover:bg-gray-100 rounded-full">
               <Bell className="w-5 h-5 text-gray-600" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-secondary rounded-full"></span>
-            </button>
+            </button> */}
             <Avatar className="w-9 h-9 cursor-pointer" onClick={() => navigate(ROUTES.PROFILE)}>
               <AvatarFallback className="bg-primary text-white text-sm font-medium">
                 {getInitials()}

@@ -44,7 +44,7 @@ const Profile = () => {
     isLoading: isProfileLoading,
     refetch: refetchProfile,
   } = useVendorProfileQuery();
-  
+
   const { data: walletData } = useWalletBalanceQuery();
   const walletBalance = walletData?.balance || 0;
   const withdrawableAmount = walletData?.withdrawable || 0;
@@ -114,7 +114,7 @@ const Profile = () => {
     }
   }, [profileData, isProfileLoading]);
 
-  const profileState = watchAddress('state');  
+  const profileState = watchAddress('state');
   const availableCitiesForProfile = profileState ? supportedAddresses[profileState] || [] : [];
 
   const onUpdatePersonal = async (data) => {
@@ -161,7 +161,7 @@ const Profile = () => {
       updateUser(response.data);
     }
     if (formData) {
-      navigate(ROUTES.PRODUCTS, {state: {productFormData: formData}});
+      navigate(ROUTES.PRODUCTS, { state: { productFormData: formData } });
     }
     refetchProfile();
   };
@@ -195,17 +195,17 @@ const Profile = () => {
       {/* Profile Header */}
       <Card>
         <CardContent className="p-6">
-          <div className="flex items-start justify-between">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-white text-2xl font-bold">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-primary flex items-center justify-center text-white text-xl sm:text-2xl font-bold shrink-0">
                 {user?.firstname?.charAt(0)}
                 {user?.lastname?.charAt(0)}
               </div>
-              <div>
-                <h2 className="text-2xl font-bold">
+              <div className="min-w-0">
+                <h2 className="text-xl sm:text-2xl font-bold truncate">
                   {user?.firstname} {user?.lastname}
                 </h2>
-                <p className="text-muted-foreground">{user?.email}</p>
+                <p className="text-sm sm:base text-muted-foreground truncate">{user?.email}</p>
                 <div className="flex gap-2 mt-2">
                   {user?.accredited ? (
                     <Badge variant="default" className="bg-green-600">
@@ -218,7 +218,7 @@ const Profile = () => {
                 </div>
               </div>
             </div>
-            <Button variant="destructive" onClick={handleLogout}>
+            <Button variant="destructive" onClick={handleLogout} className="w-full sm:w-auto">
               <LogOut className="w-4 h-4 mr-2" />
               Logout
             </Button>
@@ -227,46 +227,42 @@ const Profile = () => {
       </Card>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b">
+      <div className="flex gap-2 border-b overflow-x-auto pb-px scrollbar-hide">
         <button
-          className={`px-4 py-2 font-medium transition-colors ${
-            activeTab === "personal"
+          className={`px-4 py-2 font-medium transition-colors whitespace-nowrap shrink-0 ${activeTab === "personal"
               ? "border-b-2 border-primary text-primary"
               : "text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
           onClick={() => setActiveTab("personal")}
         >
           <UserIcon className="w-4 h-4 inline-block mr-2" />
           Personal Info
         </button>
         <button
-          className={`px-4 py-2 font-medium transition-colors ${
-            activeTab === "address"
+          className={`px-4 py-2 font-medium transition-colors whitespace-nowrap shrink-0 ${activeTab === "address"
               ? "border-b-2 border-primary text-primary"
               : "text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
           onClick={() => setActiveTab("address")}
         >
           <MapPin className="w-4 h-4 inline-block mr-2" />
           Address
         </button>
         <button
-          className={`px-4 py-2 font-medium transition-colors ${
-            activeTab === "verification"
+          className={`px-4 py-2 font-medium transition-colors whitespace-nowrap shrink-0 ${activeTab === "verification"
               ? "border-b-2 border-primary text-primary"
               : "text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
           onClick={() => setActiveTab("verification")}
         >
           <Shield className="w-4 h-4 inline-block mr-2" />
           Verification
         </button>
         <button
-          className={`px-4 py-2 font-medium transition-colors ${
-            activeTab === "wallet"
+          className={`px-4 py-2 font-medium transition-colors whitespace-nowrap shrink-0 ${activeTab === "wallet"
               ? "border-b-2 border-primary text-primary"
               : "text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
           onClick={() => setActiveTab("wallet")}
         >
           <Wallet className="w-4 h-4 inline-block mr-2" />
@@ -308,8 +304,8 @@ const Profile = () => {
               onSubmit={handleSubmitPersonal(onUpdatePersonal)}
               className="space-y-4"
             >
-              <div className="grid grid-cols-2 gap-4">
-                <div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="col-span-2 md:col-span-1">
                   <Label htmlFor="firstname">First Name</Label>
                   <Input
                     id="firstname"
@@ -318,7 +314,7 @@ const Profile = () => {
                   />
                 </div>
 
-                <div>
+                <div className="col-span-2 md:col-span-1">
                   <Label htmlFor="lastname">Last Name</Label>
                   <Input
                     id="lastname"
@@ -414,7 +410,7 @@ const Profile = () => {
               onSubmit={handleSubmitAddress(onUpdateAddress)}
               className="space-y-4"
             >
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <Label htmlFor="address">Street Address</Label>
                   <Input
@@ -533,7 +529,7 @@ const Profile = () => {
                 onSubmit={handleSubmitVerification(onVerifyProfile)}
                 className="space-y-4"
               >
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="id_num">ID Number *</Label>
                     <Input
@@ -634,39 +630,39 @@ const Profile = () => {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="bg-primary/5 border-primary/20">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Total Balance</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">₦{walletBalance.toLocaleString()}</div>
-                    </CardContent>
-                </Card>
-                <Card className="bg-green-500/5 border-green-500/20">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Withdrawable Balance</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-green-600">₦{withdrawableAmount.toLocaleString()}</div>
-                    </CardContent>
-                </Card>
+              <Card className="bg-primary/5 border-primary/20">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Total Balance</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">₦{walletBalance.toLocaleString()}</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-green-500/5 border-green-500/20">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Withdrawable Balance</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-600">₦{withdrawableAmount.toLocaleString()}</div>
+                </CardContent>
+              </Card>
             </div>
 
             <div className="flex justify-end">
-                <Button 
-                    onClick={() => setIsWithdrawalModalOpen(true)} 
-                    disabled={withdrawableAmount < 100}
-                >
-                    Withdraw Funds
-                </Button>
+              <Button
+                onClick={() => setIsWithdrawalModalOpen(true)}
+                disabled={withdrawableAmount < 100}
+              >
+                Withdraw Funds
+              </Button>
             </div>
           </CardContent>
         </Card>
       )}
 
-      <WithdrawalModal 
-        isOpen={isWithdrawalModalOpen} 
-        onClose={() => setIsWithdrawalModalOpen(false)} 
+      <WithdrawalModal
+        isOpen={isWithdrawalModalOpen}
+        onClose={() => setIsWithdrawalModalOpen(false)}
         balance={withdrawableAmount}
       />
 
@@ -676,7 +672,7 @@ const Profile = () => {
           <CardTitle>Quick Info</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div>
               <p className="text-muted-foreground">Email</p>
               <p className="font-medium">{user?.email}</p>

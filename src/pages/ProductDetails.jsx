@@ -49,18 +49,17 @@ const ProductDetails = () => {
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            className={`w-4 h-4 ${
-              star <= rating
-                ? "fill-yellow-400 text-yellow-400"
-                : "text-gray-300"
-            }`}
+            className={`w-4 h-4 ${star <= rating
+              ? "fill-yellow-400 text-yellow-400"
+              : "text-gray-300"
+              }`}
           />
         ))}
       </div>
     );
   };
 
-    const fetchProductReviews = async () => {
+  const fetchProductReviews = async () => {
     setLoadingReviews(true);
     try {
       const response = await productService.getProductReviews(id);
@@ -110,9 +109,8 @@ const ProductDetails = () => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: `Maximum 5 images allowed. You can add ${
-          5 - currentImageCount
-        } more.`,
+        description: `Maximum 5 images allowed. You can add ${5 - currentImageCount
+          } more.`,
       });
       return;
     }
@@ -245,11 +243,10 @@ const ProductDetails = () => {
                 {product.images?.map((image, index) => (
                   <div key={index} className="relative group">
                     <div
-                      className={`aspect-square rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${
-                        selectedImage === index
-                          ? "border-primary"
-                          : "border-transparent"
-                      }`}
+                      className={`aspect-square rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${selectedImage === index
+                        ? "border-primary"
+                        : "border-transparent"
+                        }`}
                       onClick={() => setSelectedImage(index)}
                     >
                       <img
@@ -331,7 +328,7 @@ const ProductDetails = () => {
 
               <div>
                 <h4 className="font-semibold mb-2">Description</h4>
-                <p className="text-muted-foreground">{product.desc}</p>
+                <p className="text-muted-foreground whitespace-pre-wrap">{product.desc}</p>
               </div>
 
               {product.brand && (
@@ -345,11 +342,10 @@ const ProductDetails = () => {
                 <div>
                   <h4 className="font-semibold mb-1">Stock</h4>
                   <p
-                    className={`text-lg ${
-                      product.amount_in_stock < 10
-                        ? "text-red-600"
-                        : "text-green-600"
-                    }`}
+                    className={`text-lg ${product.amount_in_stock < 10
+                      ? "text-red-600"
+                      : "text-green-600"
+                      }`}
                   >
                     {product.amount_in_stock}{" "}
                     {product.stock_type?.[0] || "units"}
@@ -466,8 +462,8 @@ const ProductDetails = () => {
                   sponsorshipStatus === "active"
                     ? "default"
                     : sponsorshipStatus === "scheduled"
-                    ? "secondary"
-                    : "outline"
+                      ? "secondary"
+                      : "outline"
                 }
               >
                 {sponsorshipStatus}
