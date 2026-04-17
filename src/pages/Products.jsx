@@ -36,6 +36,7 @@ import {
   useDeleteProductMutation,
 } from "@/hooks/queries";
 import Loader from "../components/ui/Loader";
+import { toGram } from "../lib/utils";
 
 const Products = () => {
   // React Query hooks
@@ -146,6 +147,8 @@ const Products = () => {
     // Parse array fields from comma-separated strings
     const payload = {
       ...data,
+      currency: data.currency || "NGN",
+      weight: toGram(data.weight),
       colors: data.colors
         ? data.colors
           .split(",")
@@ -386,20 +389,32 @@ const Products = () => {
                 <Input
                   id="price"
                   type="number"
-                  {...register("price", {
+                  {...register("slashed_price", {
                     required: "Price is required",
                     min: 1,
                   })}
                   placeholder="0.00"
                 />
-                {errors.price && (
+                {errors.slashed_price && (
                   <p className="text-xs text-red-500 mt-1">
-                    {errors.price.message}
+                    {errors.slashed_price.message}
                   </p>
                 )}
               </div>
 
               <div>
+                <Label htmlFor="discount_price">Discount Price</Label>
+                <Input id="discount_price" type="number" {...register('discount_price')} placeholder="0.00" />
+              </div>
+              {
+                errors.discount_price && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.discount_price.message}
+                  </p>
+                )
+              }
+
+              {/* <div>
                 <Label htmlFor="currency">Currency <span className="text-red-500">*</span></Label>
                 <Controller
                   name="currency"
@@ -425,7 +440,7 @@ const Products = () => {
                     {errors.currency.message}
                   </p>
                 )}
-              </div>
+              </div> */}
 
               <div>
                 <Label htmlFor="stock_type">Stock Type <span className="text-red-500">*</span></Label>
@@ -495,18 +510,13 @@ const Products = () => {
               </div>
 
               <div>
-                <Label htmlFor="weight">Weight (grams)</Label>
+                <Label htmlFor="weight">Weight (kg)</Label>
                 <Input
                   id="weight"
                   type="number"
                   {...register("weight")}
-                  placeholder="0"
+                  placeholder="0.0"
                 />
-              </div>
-
-              <div>
-                <Label htmlFor="slashed_price">Slashed Price</Label>
-                <Input id="slashed_price" type="number" {...register('slashed_price')} placeholder="0.00" />
               </div>
 
               <div className="col-span-2">

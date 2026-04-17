@@ -22,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useUpdateProductMutation } from "@/hooks/queries";
 import { productCategories } from "@/constants/categories";
 import { supportedAddresses } from '@/constants/addresses';
+import { toGram, toKg } from "../lib/utils";
 
 export function EditProductDialog({ product, open, onOpenChange, onSuccess }) {
   const updateProductMutation = useUpdateProductMutation();
@@ -45,7 +46,7 @@ export function EditProductDialog({ product, open, onOpenChange, onSuccess }) {
         desc: product.desc,
         category: product.category,
         sub_category: product.sub_category,
-        price: product.price,
+        slashed_price: product.slashed_price,
         currency: product.currency,
         stock_type: product.stock_type?.[0] || "unit",
         amount_in_stock: product.amount_in_stock,
@@ -55,9 +56,8 @@ export function EditProductDialog({ product, open, onOpenChange, onSuccess }) {
         country: product.location?.country || "Nigeria",
         address: product.location?.address || "",
         brand: product.brand || "",
-        weight: product.weight || "",
+        weight: toKg(product.weight) || "",
         discount_price: product.discount_price || "",
-        slashed_price: product.slashed_price || "",
         colors: product.colors?.join(", ") || "",
         sizes: product.sizes?.join(", ") || "",
         tags: product.tags?.join(", ") || "",
@@ -71,6 +71,8 @@ export function EditProductDialog({ product, open, onOpenChange, onSuccess }) {
     // Parse array fields
     const payload = {
       ...data,
+      currency: data.currency || "NGN",
+      weight: toGram(data.weight),
       colors: data.colors
         ? typeof data.colors === "string"
           ? data.colors.split(",").map((c) => c.trim())
@@ -182,12 +184,23 @@ export function EditProductDialog({ product, open, onOpenChange, onSuccess }) {
               <Input
                 id="edit-price"
                 type="number"
-                {...register("price")}
+                {...register("slashed_price")}
                 placeholder="0.00"
               />
             </div>
 
+
             <div>
+              <Label htmlFor="edit-discount_price">Discount Price</Label>
+              <Input
+                id="edit-discount_price"
+                type="number"
+                {...register("discount_price")}
+                placeholder="0.00"
+              />
+            </div>
+
+            {/* <div>
               <Label htmlFor="edit-currency">Currency</Label>
               <Controller
                 name="currency"
@@ -206,7 +219,7 @@ export function EditProductDialog({ product, open, onOpenChange, onSuccess }) {
                   </Select>
                 )}
               />
-            </div>
+            </div> */}
 
             <div>
               <Label htmlFor="edit-stock_type">Stock Type</Label>
@@ -259,22 +272,12 @@ export function EditProductDialog({ product, open, onOpenChange, onSuccess }) {
             </div>
 
             <div>
-              <Label htmlFor="edit-weight">Weight</Label>
+              <Label htmlFor="edit-weight">Weight (kg)</Label>
               <Input
                 id="edit-weight"
                 type="number"
                 {...register("weight")}
-                placeholder="0"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="edit-slashed_price">Slashed Price</Label>
-              <Input
-                id="edit-slashed_price"
-                type="number"
-                {...register("slashed_price")}
-                placeholder="0.00"
+                placeholder="0.0"
               />
             </div>
 

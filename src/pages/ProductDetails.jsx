@@ -22,6 +22,7 @@ import { format } from "date-fns";
 import { EditProductDialog } from "@/components/EditProductDialog";
 import { SponsorProductDialog } from "@/components/SponsorProductDialog";
 import { imagePlaceholder } from "../constants";
+import { toKg } from "../lib/utils";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -317,11 +318,11 @@ const ProductDetails = () => {
                 <p className="text-3xl font-bold text-primary">
                   {product.currency} {product.price?.toLocaleString()}
                 </p>
-                {product.discount_price &&
-                  product.discount_price !== product.price && (
+                {product.slashed_price &&
+                  product.slashed_price !== product.price && (
                     <p className="text-lg text-muted-foreground line-through">
                       {product.currency}{" "}
-                      {product.discount_price?.toLocaleString()}
+                      {product.slashed_price?.toLocaleString()}
                     </p>
                   )}
               </div>
@@ -355,7 +356,7 @@ const ProductDetails = () => {
                 {product.weight && (
                   <div>
                     <h4 className="font-semibold mb-1">Weight</h4>
-                    <p className="text-muted-foreground">{product.weight}g</p>
+                    <p className="text-muted-foreground">{toKg(product.weight)}kg</p>
                   </div>
                 )}
               </div>
