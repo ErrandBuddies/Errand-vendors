@@ -85,4 +85,4 @@ export const STORAGE_KEYS = {
   EMAIL: "vendor_email",
 };
 
-export const imagePlaceholder = "/products/placeholder-product.png";
+export const imagePlaceholder = "/placeholder-product.png";

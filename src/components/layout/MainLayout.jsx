@@ -5,12 +5,15 @@ import { Bell, LayoutDashboard, Package, ShoppingCart, Briefcase, MessageSquare 
 import { cn } from '@/lib/utils';
 import { ROUTES } from '@/constants';
 import { useChat } from '@/contexts/ChatContext';
+import { useOrdersQuery } from '@/hooks/queries';
 
 const MainLayout = () => {
   const { user } = useAuth();
   const { unreadCount } = useChat();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const { data: orders = [], isLoading, isError, error } = useOrdersQuery("Pending");
 
   const getPageTitle = () => {
     const path = location.pathname;
@@ -86,6 +89,11 @@ const MainLayout = () => {
                   {item.name === 'Messages' && unreadCount.length > 0 && (
                     <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 bg-secondary text-white text-[10px] font-bold rounded-full">
                       {unreadCount.length > 99 ? '99+' : unreadCount.length}
+                    </span>
+                  )}
+                  {item.name === 'Orders' && orders.length > 0 && (
+                    <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 bg-secondary text-white text-[10px] font-bold rounded-full">
+                      {orders.length > 99 ? '99+' : orders.length}
                     </span>
                   )}
                 </div>

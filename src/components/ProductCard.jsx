@@ -7,7 +7,7 @@ import { imagePlaceholder } from '../constants';
 const ProductCard = ({ product, onView, onEdit, onDelete, onSponsor }) => {
   const firstImage = product.images && product.images.length > 0
     ? product.images[0]
-    : '/placeholder-product.png';
+    : imagePlaceholder;
 
   const isSponsored = product?.sponsorship?.status === "active" || false;
   const isLowStock = product.amount_in_stock < 10;

@@ -5,9 +5,9 @@ import { Eye, Edit, Trash2, Star } from 'lucide-react';
 import { imagePlaceholder } from '../constants';
 
 const ServiceCard = ({ service, onView, onEdit, onDelete }) => {
-  const firstImage = service.images && service.images.length > 0 
-    ? service.images[0] 
-    : '/placeholder-product.png';
+  const firstImage = service.images && service.images.length > 0
+    ? service.images[0]
+    : imagePlaceholder;
 
   const isAvailable = service.availability !== false;
   const rating = service.ratings?.rate || 0;

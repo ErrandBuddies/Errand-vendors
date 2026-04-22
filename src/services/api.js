@@ -344,8 +344,12 @@ export const serviceService = {
 // *** ORDER SERVICES ***
 // ==================================================
 export const orderService = {
-  getOrders: async () => {
-    const response = await axiosInstance.get(API_ENDPOINTS.ORDERS);
+  getOrders: async (status = "") => {
+    const params = new URLSearchParams();
+    if (status) params.append("status", status);
+    const response = await axiosInstance.get(
+      `${API_ENDPOINTS.ORDERS}?${params.toString()}`,
+    );
     return response.data;
   },
 

@@ -6,11 +6,11 @@ import { useToast } from "@/hooks/use-toast";
 /**
  * Query hook for fetching all orders
  */
-export function useOrdersQuery() {
+export function useOrdersQuery(status = "") {
   return useQuery({
-    queryKey: QUERY_KEYS.ORDERS,
+    queryKey: [...QUERY_KEYS.ORDERS, status],
     queryFn: async () => {
-      const response = await orderService.getOrders();
+      const response = await orderService.getOrders(status);
       return response.data || [];
     },
   });

@@ -24,7 +24,7 @@ export const queryClient = new QueryClient({
       retry: 1,
 
       // Don't refetch on mount if data is fresh
-      refetchOnMount: false,
+      refetchOnMount: true,
     },
     mutations: {
       // Retry failed mutations once
