@@ -1,0 +1,353 @@
+contract of Service
+
+Vendors can have contract on any of their services, a contract is like the purchase of a service
+It starts from chat conversations, when a user wants to purchase a service, they can chat with the vendor to create a contract
+** Flow **
+
+1. vendor starts contract by selecting the intended service which sets the contract to negotiation,
+2. user receives a propmt to start negotiation, 
+3. user confirms negotiation stage, (accepts or rejects)
+4. vendor can then initiate payment,
+5. user can then make payment,
+6. when the contract is completed, the vendor marks it completed and the contract is completed.
+
+** Actions **
+
+1. From the chat interface, add a option button at the top right to start a contract (negotiation)
+2. open a modal to select the service.
+
+emit event "service-negotiation-start" 
+payload
+ { recipientID, serviceId, name } // the id of the user, the id of the service, and an optional name for the contract.
+
+receives event "service-negotiation-start"
+success response 
+ {
+    success: true
+    message: "Negotiation started"
+    contract: { 
+        vendorDetails: "69335060998ff7b3ee2ccdf6" 
+        userDetails: "69d576a5ef4c18ea6746e31b" 
+        serviceDetails: "693416c4e6f356f8b0ce3c20" 
+        name: "Azeez" 
+        currency: "NGN" 
+        price: 0
+        paymentStatus: "pending"
+        stage: "initiated"
+        duration: 0
+        clientStatus: "negotiation_prompt"
+        reviews: [ ]
+        ratings: { rate: 0 ,number: 0 }
+        rate: 0
+        number: 0
+        _id: "69e92f9606632977272efb83"
+        createdAt: "2026-04-22T20:29:10.595Z"
+        updatedAt: "2026-04-22T20:29:10.595Z"
+    }
+ }
+
+error response 
+ {
+    success: false,
+    message: "Service not found"
+ }
+ 
+ {
+    success: false,
+    message: "complete current contract or cancel them before starting a new one"
+ }
+
+ 2. user confirms negotiation stage, 
+ recieves event "service-confirm-negotiation" 
+ accept response 
+ {
+    success: true,
+    message: "Negotiation confirmed",
+    contract: { 
+        vendorDetails: "69335060998ff7b3ee2ccdf6" 
+        userDetails: "69d576a5ef4c18ea6746e31b" 
+        serviceDetails: "693416c4e6f356f8b0ce3c20" 
+        name: "Azeez" 
+        currency: "NGN" 
+        price: 0
+        paymentStatus: "pending"
+        stage: "negotiation"
+        duration: 0
+        clientStatus: "negotiation"
+        reviews: [ ]
+        ratings: { rate: 0 ,number: 0 }
+        rate: 0
+        number: 0
+        _id: "69e92f9606632977272efb83"
+        createdAt: "2026-04-22T20:29:10.595Z"
+        updatedAt: "2026-04-22T20:29:10.595Z"
+    }
+ }
+
+ rejects response
+ {
+    success: true,
+    message: "Negotiation rejected",
+    contract: null
+ }
+
+3. initiate payment for contract 
+emit event "service-initiate-payment" 
+payload
+ { contractId, price, duration } // the id of the contract, the price, and the duration.
+
+response
+{
+    success: true,
+    message: "payment initiated",
+    "contract": {
+        "ratings": {
+            "rate": 0,
+            "number": 0
+        },
+        "_id": "69e9363e06632977272efd48",
+        "vendorDetails": "69335060998ff7b3ee2ccdf6",
+        "userDetails": "6931f363db849908ac2c1a08",
+        "serviceDetails": "693416c4e6f356f8b0ce3c20",
+        "name": "Azeez",
+        "currency": "NGN",
+        "price": 25000,
+        "paymentStatus": "pending",
+        "stage": "payment",
+        "duration": 50000,
+        "clientStatus": "payment_prompt",
+        "reviews": [],
+        "createdAt": "2026-04-22T20:57:34.042Z",
+        "updatedAt": "2026-04-22T22:21:27.989Z",
+        "__v": 0
+    },
+}
+
+4. user makes payment for contract 
+ recieves event "service-complete-payment" 
+
+ success response
+ {
+    "success": true,
+    "message": "Payment completed successfully",
+    "payment": true,
+    "data": {
+        "ratings": {
+            "rate": 0,
+            "number": 0
+        },
+        "_id": "69e9363e06632977272efd48",
+        "vendorDetails": "69335060998ff7b3ee2ccdf6",
+        "userDetails": "6931f363db849908ac2c1a08",
+        "serviceDetails": "693416c4e6f356f8b0ce3c20",
+        "name": "Azeez",
+        "currency": "NGN",
+        "price": 25000,
+        "paymentStatus": "paid",
+        "stage": "in_progress",
+        "duration": 50000,
+        "clientStatus": "confirmed",
+        "reviews": [],
+        "createdAt": "2026-04-22T20:57:34.042Z",
+        "updatedAt": "2026-04-22T22:24:57.378Z",
+        "__v": 0
+    }
+}
+
+payment failed response 
+
+ {
+    "success": true,
+    "message": "Payment failed",
+    "payment": false,
+    "data": {
+        "ratings": {
+            "rate": 0,
+            "number": 0
+        },
+        "_id": "69e9363e06632977272efd48",
+        "vendorDetails": "69335060998ff7b3ee2ccdf6",
+        "userDetails": "6931f363db849908ac2c1a08",
+        "serviceDetails": "693416c4e6f356f8b0ce3c20",
+        "name": "Azeez",
+        "currency": "NGN",
+        "price": 25000,
+        "paymentStatus": "pending",
+        "stage": "negotiation",
+        "duration": 50000,
+        "clientStatus": "negotiation",
+        "reviews": [],
+        "createdAt": "2026-04-22T20:57:34.042Z",
+        "updatedAt": "2026-04-22T22:24:57.378Z",
+        "__v": 0
+    }
+}
+ 
+5. vendor marks contract as completed (Add a confirmation tooltip)
+ recieves event "service-complete-contract" 
+ payload {contractId}
+ success response
+  {
+    "success": true,
+    "message": "contract completed successfully",
+    "data": {
+        "ratings": {
+            "rate": 0,
+            "number": 0
+        },
+        "_id": "69e9363e06632977272efd48",
+        "vendorDetails": "69335060998ff7b3ee2ccdf6",
+        "userDetails": "6931f363db849908ac2c1a08",
+        "serviceDetails": "693416c4e6f356f8b0ce3c20",
+        "name": "Azeez",
+        "currency": "NGN",
+        "price": 25000,
+        "paymentStatus": "paid",
+        "stage": "completed",
+        "duration": 50000,
+        "clientStatus": "vendor_completed",
+        "reviews": [],
+        "createdAt": "2026-04-22T20:57:34.042Z",
+        "updatedAt": "2026-04-22T22:24:57.378Z",
+        "__v": 0
+    }
+}
+
+6. user marks contract as completed 
+ recieves event "service-complete-contract" 
+ payload {contractId}
+ success response
+  {
+    "success": true,
+    "message": "contract completed successfully",
+    "data": {
+        "ratings": {
+            "rate": 0,
+            "number": 0
+        },
+        "_id": "69e9363e06632977272efd48",
+        "vendorDetails": "69335060998ff7b3ee2ccdf6",
+        "userDetails": "6931f363db849908ac2c1a08",
+        "serviceDetails": "693416c4e6f356f8b0ce3c20",
+        "name": "Azeez",
+        "currency": "NGN",
+        "price": 25000,
+        "paymentStatus": "paid",
+        "stage": "confirmed",
+        "duration": 50000,
+        "clientStatus": "completed",
+        "reviews": [],
+        "createdAt": "2026-04-22T20:57:34.042Z",
+        "updatedAt": "2026-04-22T22:24:57.378Z",
+        "__v": 0
+    }
+}
+
+7. terminate contract
+receives or emit event on "service-terminate-contract"
+payload {contractId, recipientID}
+
+response
+{
+    {
+    "success": true,
+    "message": "contract is terminated",
+    "data": {
+        "ratings": {
+            "rate": 0,
+            "number": 0
+        },
+        "_id": "69e9363e06632977272efd48",
+        "vendorDetails": "69335060998ff7b3ee2ccdf6",
+        "userDetails": "6931f363db849908ac2c1a08",
+        "serviceDetails": "693416c4e6f356f8b0ce3c20",
+        "name": "Azeez",
+        "currency": "NGN",
+        "price": 25000,
+        "paymentStatus": "paid",
+        "stage": "cancelled",
+        "duration": 50000,
+        "clientStatus": "completed",
+        "reviews": [],
+        "createdAt": "2026-04-22T20:57:34.042Z",
+        "updatedAt": "2026-04-22T22:24:57.378Z",
+        "__v": 0
+    }
+}
+
+
+NOTE: 
+1. the current stage of contract accross all events is tracked and by the "stage" and "clientStatus" fields.
+2. All events have a response event on the same event name.
+3. contract stages are [negotiation, payment, in_progress, completed, cancelled]
+4. contract can be terminated by either user or vendor only before payment.
+5. The endpoint to get recepient messages -> /api/chat/vendor/messages/:recipientId always return the contract object if there is an active contract with the user.
+
+endpoint response sample
+{
+    "success": true,
+    "conversationId": "6931f363db849908ac2c1a08_69335060998ff7b3ee2ccdf6",
+    "data": [
+        {
+            "_id": "69dd487e58a9f9a5eabc0553",
+            "sender": "69335060998ff7b3ee2ccdf6",
+            "recipient": "6931f363db849908ac2c1a08",
+            "message": "Message is sent but no feedback",
+            "attachment": null,
+            "status": "read",
+            "createdAt": "2026-04-13T19:48:14.387Z"
+        },
+        {
+            "_id": "69dd489058a9f9a5eabc056a",
+            "sender": "69335060998ff7b3ee2ccdf6",
+            "recipient": "6931f363db849908ac2c1a08",
+            "message": "Is socker disconnecting??",
+            "attachment": null,
+            "status": "read",
+            "createdAt": "2026-04-13T19:48:32.819Z"
+        },
+        {
+            "_id": "69dd489a58a9f9a5eabc0581",
+            "sender": "69335060998ff7b3ee2ccdf6",
+            "recipient": "6931f363db849908ac2c1a08",
+            "message": "What is happening",
+            "attachment": null,
+            "status": "read",
+            "createdAt": "2026-04-13T19:48:42.432Z"
+        }
+    ],
+    "contract": {
+        "ratings": {
+            "rate": 0,
+            "number": 0
+        },
+        "_id": "69e9363e06632977272efd48",
+        "vendorDetails": "69335060998ff7b3ee2ccdf6",
+        "userDetails": "6931f363db849908ac2c1a08",
+        "serviceDetails": "693416c4e6f356f8b0ce3c20",
+        "name": "Azeez",
+        "currency": "NGN",
+        "price": 25000,
+        "paymentStatus": "paid",
+        "stage": "in_progress",
+        "duration": 50000,
+        "clientStatus": "confirmed",
+        "reviews": [],
+        "createdAt": "2026-04-22T20:57:34.042Z",
+        "updatedAt": "2026-04-22T22:24:57.378Z",
+        "__v": 0
+    },
+    "recipient": [
+        {
+            "_id": "6931f363db849908ac2c1a08",
+            "firstname": "Azeez",
+            "lastname": "Adebayo"
+        }
+    ],
+    "pagination": {
+        "hasMore": false,
+        "nextCursor": null,
+        "limit": 50
+    }
+}
+

@@ -29,6 +29,7 @@ export const useMessages = (recipientId) => {
         pagination: response.pagination || {},
         conversationId: response.conversationId,
         recipient: response.recipient?.[0] || null,
+        contract: response.contract || null,
       };
     },
     getNextPageParam: (lastPage) => {

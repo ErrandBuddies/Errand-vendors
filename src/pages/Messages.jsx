@@ -44,7 +44,7 @@ const Messages = () => {
         {selectedConversation ? (
           <div className="flex flex-col h-full">
             {/* Mobile header with back button */}
-            <div className="flex items-center gap-2 p-3 border-b bg-background">
+            {/* <div className="flex items-center gap-2 p-3 border-b bg-background">
               <Button
                 size="icon"
                 variant="ghost"
@@ -56,9 +56,9 @@ const Messages = () => {
                 {selectedConversation.counterpartDetails?.firstname}{' '}
                 {selectedConversation.counterpartDetails?.lastname}
               </h2>
-            </div>
+            </div> */}
             <div className="flex-1 overflow-hidden">
-              <ChatWindow conversation={selectedConversation} />
+              <ChatWindow isMobileView={isMobileView} handleBackToList={handleBackToList} conversation={selectedConversation} />
             </div>
           </div>
         ) : (

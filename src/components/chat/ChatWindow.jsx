@@ -1,11 +1,20 @@
-import { useEffect, useRef, useState } from 'react';
-import { ArrowDown, Loader2 } from 'lucide-react';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { ArrowDown, Loader2, MoreVertical, FileSignature, ArrowLeft } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';
+import StartContractModal from './StartContractModal';
+import InitiatePaymentModal from './InitiatePaymentModal';
+import ContractBanner from './ContractBanner';
 import useMessages from '@/hooks/queries/useMessages';
 import useSendMessage from '@/hooks/queries/useSendMessage';
 import { useSocket } from '@/hooks/useSocket';
@@ -16,14 +25,21 @@ import { useChat } from '@/contexts/ChatContext';
  * ChatWindow Component
  * Main chat interface with message list and input
  */
-export const ChatWindow = ({ conversation }) => {
+export const ChatWindow = ({ conversation, isMobileView, handleBackToList }) => {
   const { user } = useAuth();
-  const { socket } = useSocket();
+  const { socket, emit } = useSocket();
+  const { toast } = useToast();
   const scrollRef = useRef(null);
   const messagesEndRef = useRef(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [hasScrolledUp, setHasScrolledUp] = useState(false);
   const { setUnreadCount } = useChat();
+
+  // Contract related state
+  const [contract, setContract] = useState(null);
+  const [showStartModal, setShowStartModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [isContractPending, setIsContractPending] = useState(false);
 
   const recipientId = conversation?.counterpartDetails?._id;
   const {
@@ -40,6 +56,108 @@ export const ChatWindow = ({ conversation }) => {
   // Flatten all messages from pages
   const messages = data?.pages?.flatMap((page) => page.messages) || [];
   const recipient = data?.pages?.[0]?.recipient;
+  const initialContract = data?.pages?.[0]?.contract;
+
+  // Initialize contract state from API response
+  useEffect(() => {
+    if (initialContract) {
+      setContract(initialContract);
+    } else {
+      setContract(null);
+    }
+  }, [initialContract, recipientId]);
+
+  // Handle contract socket events
+  useEffect(() => {
+    if (!socket || !recipientId) return;
+
+    const handleContractUpdate = (data) => {
+      console.log('Contract socket event:', data);
+      if (data?.success && data?.contract) {
+        setContract(data.contract);
+      } else if (data?.success && data?.data) {
+        // Some events return 'data' instead of 'contract'
+        setContract(data.data);
+      }
+
+      if (data?.message) {
+        toast({
+          title: data.success ? 'Success' : 'Notice',
+          description: data.message,
+          variant: data.success ? 'default' : 'destructive',
+        });
+      }
+
+      setIsContractPending(false);
+    };
+
+    const handleNegotiationStart = (data) => {
+      handleContractUpdate(data);
+      if (data?.success) setShowStartModal(false);
+    };
+
+    const handleInitiatePayment = (data) => {
+      handleContractUpdate(data);
+      if (data?.success) setShowPaymentModal(false);
+    };
+
+    const handleTerminate = (data) => {
+      if (data?.success) {
+        setContract(null);
+        toast({
+          title: 'Contract Terminated',
+          description: data.message || 'The contract has been cancelled.',
+        });
+      }
+    };
+
+    // Generic listener for all contract events that just update the state
+    socket.on('service-negotiation-start', handleNegotiationStart);
+    socket.on('service-confirm-negotiation', handleContractUpdate);
+    socket.on('service-initiate-payment', handleInitiatePayment);
+    socket.on('service-complete-payment', handleContractUpdate);
+    socket.on('service-complete-contract', handleContractUpdate);
+    socket.on('service-terminate-contract', handleTerminate);
+
+    return () => {
+      socket.off('service-negotiation-start', handleNegotiationStart);
+      socket.off('service-confirm-negotiation', handleContractUpdate);
+      socket.off('service-initiate-payment', handleInitiatePayment);
+      socket.off('service-complete-payment', handleContractUpdate);
+      socket.off('service-complete-contract', handleContractUpdate);
+      socket.off('service-terminate-contract', handleTerminate);
+    };
+  }, [socket, recipientId, toast]);
+
+  // Contract actions
+  const startNegotiation = ({ serviceId, name }) => {
+    setIsContractPending(true);
+    emit('service-negotiation-start', {
+      recipientID: recipientId,
+      serviceId,
+      name
+    });
+  };
+
+  const initiatePayment = ({ contractId, price, duration }) => {
+    setIsContractPending(true);
+    emit('service-initiate-payment', { contractId, price, duration });
+  };
+
+  const markComplete = () => {
+    if (!contract?._id) return;
+    setIsContractPending(true);
+    emit('service-complete-contract', { contractId: contract._id });
+  };
+
+  const terminateContract = () => {
+    if (!contract?._id) return;
+    setIsContractPending(true);
+    emit('service-terminate-contract', {
+      contractId: contract._id,
+      recipientID: recipientId
+    });
+  };
 
   // Auto-scroll to bottom on new message (if not scrolled up)
   useEffect(() => {
@@ -66,8 +184,10 @@ export const ChatWindow = ({ conversation }) => {
     if (socket && recipientId) {
       socket.emit('messagesRead', { recipientID: recipientId });
     }
-    setUnreadCount(prev => prev.filter((id) => id !== conversation._id));
-  }, [socket, messages, recipientId]);
+    if (conversation?._id) {
+      setUnreadCount(prev => prev.filter((id) => id !== conversation._id));
+    }
+  }, [socket, messages.length, recipientId, conversation?._id, setUnreadCount]);
 
   // Handle scroll to detect if user scrolled up
   const handleScroll = () => {
@@ -121,6 +241,15 @@ export const ChatWindow = ({ conversation }) => {
     <Card className="flex flex-col h-full rounded-none">
       {/* Header */}
       <div className="flex items-center gap-3 p-4 border-b bg-background">
+        {isMobileView &&
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={handleBackToList}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+        }
         <Avatar className="w-10 h-10">
           <AvatarFallback className="bg-primary text-primary-foreground">
             {getInitials(
@@ -136,7 +265,41 @@ export const ChatWindow = ({ conversation }) => {
           </h3>
           <p className="text-xs text-muted-foreground">Customer</p>
         </div>
+
+        {/* Contract Options */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <MoreVertical className="w-5 h-5 text-muted-foreground" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-48 p-1">
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-sm font-normal py-2 px-3 h-auto"
+              onClick={() => setShowStartModal(true)}
+              disabled={!!contract && contract.stage !== 'cancelled'}
+            >
+              <FileSignature className="w-4 h-4 mr-2" />
+              {contract && contract.stage !== 'cancelled'
+                ? 'Active Contract'
+                : 'Start Contract'}
+            </Button>
+          </PopoverContent>
+        </Popover>
       </div>
+
+      {/* Contract Banner */}
+      {contract && (
+        <ContractBanner
+          contract={contract}
+          onInitiatePayment={() => setShowPaymentModal(true)}
+          onComplete={markComplete}
+          onTerminate={terminateContract}
+          isCompletePending={isContractPending}
+          isTerminatePending={isContractPending}
+        />
+      )}
 
       {/* Messages */}
       <div
@@ -189,8 +352,25 @@ export const ChatWindow = ({ conversation }) => {
         isSending={isSending}
         disabled={!recipientId}
       />
+
+      {/* Modals */}
+      <StartContractModal
+        open={showStartModal}
+        onOpenChange={setShowStartModal}
+        onStart={startNegotiation}
+        isPending={isContractPending}
+      />
+
+      <InitiatePaymentModal
+        open={showPaymentModal}
+        onOpenChange={setShowPaymentModal}
+        contract={contract}
+        onInitiate={initiatePayment}
+        isPending={isContractPending}
+      />
     </Card>
   );
 };
 
 export default ChatWindow;
+
