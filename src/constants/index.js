@@ -71,6 +71,7 @@ export const API_ENDPOINTS = {
   // Chat
   GET_CONVERSATIONS: "/chat/vendor/conversation",
   GET_MESSAGES: "/chat/vendor/messages",
+  UPLOAD_ATTACHMENT: "/chat/upload-attachment",
 
   // Wallet
   WALLET_BALANCE: "/payment/wallet",

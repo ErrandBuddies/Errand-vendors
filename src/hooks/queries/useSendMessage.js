@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSocket } from "@/hooks/useSocket";
 import { queryKeys } from "./queryKeys";
+import { chatService } from "../../services/api";
 
 /**
  * Generate a unique message ID for tracking
@@ -134,7 +135,17 @@ export const useSendMessage = (recipientId) => {
           };
         },
       );
+      if (attachment) {
+        const attachmentUrl = await chatService.uploadAttachment(attachment);
+        console.log("🚀 ~ sendMessage ~ attachmentUrl:", attachmentUrl);
 
+        payload.attachment = {
+          type: getFileType(attachment.type),
+          fileName: attachment.name,
+          size: attachment.size,
+          url: attachmentUrl?.url,
+        };
+      }
       // Emit the message
       socket.emit("sendMessage", payload);
 
