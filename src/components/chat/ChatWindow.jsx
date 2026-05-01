@@ -75,9 +75,8 @@ export const ChatWindow = ({ conversation, isMobileView, handleBackToList }) => 
       console.log('Contract socket event:', data);
       if (data?.success && data?.contract) {
         setContract(data.contract);
-      } else if (data?.success && data?.data) {
-        // Some events return 'data' instead of 'contract'
-        setContract(data.data);
+      } else if (data?.success && !data?.contract) {
+        setContract(data.contract);
       }
 
       if (data?.message) {
